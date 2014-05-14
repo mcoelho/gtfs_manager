@@ -53,8 +53,8 @@
 							<?php $fromaddr = str_replace($from . '- ', '', str_replace($from . ' - ', '', $result->departure_description));
 	      	$toaddr = str_replace($to . '- ', '', str_replace($to . ' - ', '', $result->destination_description)); ?>
 							<tr>
-								<td><?php print $result->departure_departure_time; ?></td>
-								<td><?php print $result->destination_arrival_time; ?></td>
+								<td><?php print date("g:i a", strtotime($result->departure_departure_time)); ?></td>
+								<td><?php print date("g:i a", strtotime($result->destination_arrival_time)); ?></td>
 								<td><?php print $result->duration . $result->days; ?></td>
 								<td><?php print $result->price; ?></td>
 								<td class="center"><?php print $result->transfer;?></td>
@@ -83,7 +83,11 @@
 										<li>
 											<ul>
 												<li class="time"><h2>
+<<<<<<< HEAD
+														<?php print date("g:i a", strtotime($result->departure_departure_time)); ?>
+=======
 														<?php print $result->departure_departure_time; ?>
+>>>>>>> e0fba5c24269722bb29dafd2c52af0193f74fb56
 													</h2></li>
 												<li class="location"><h6>
 														Depart from
@@ -94,7 +98,7 @@
 												
 												</li>
 												<li class="cost"><h6>
-														<?php (isset($result->num_transfers) ? print $result->first_leg_price : print $result->price); ?>
+														<?php (isset($result->num_transfers) ? print '$' . $result->first_leg_price : print $result->price); ?>
 													</h6></li>
 												<li class="transporter"><a target="_blank"
 													href="<?php print $result->departure_agency_url; ?>"><?php print stripslashes($result->departure_agency_name); ?>
@@ -109,7 +113,7 @@
 											<li class="transfer">
 												<h4><i class="icon-random"></i> Transfer</h4>
 												<ul>
-													<li class="time"><h2><?php print $result->departure_transfer_departure_time; ?></h2></li>
+													<li class="time"><h2><?php print date("g:i a", strtotime($result->departure_transfer_departure_time)); ?></h2></li>
 													<li class="location">
 														<h6>Arrive at <?php print $result->from_stop_name; ?></h6>
 													</li>
@@ -120,9 +124,9 @@
 											</li>
 											<li>
 												<ul>
-													<li class="time"><h2><?php print $result->destination_transfer_arrival_time; ?></h2></li>
+													<li class="time"><h2><?php print date("g:i a", strtotime($result->destination_transfer_arrival_time)); ?></h2></li>
 													<li class="location"><h6>Depart from <?php print $result->to_stop_name; ?></h6></li>
-													<li class="cost"><h6><?php print $result->second_leg_price; ?></h6></li>
+													<li class="cost"><h6><?php print '$' . $result->second_leg_price; ?></h6></li>
 													<li class="transporter">
 														<a href="<?php print $result->destination_agency_url; ?>"><?php print stripslashes($result->destination_agency_name); ?> <i class="icon-external-link"></i></a>
 														<p><?php print $result->destination_agency_phone; ?>
@@ -133,7 +137,7 @@
 										<li>
 											<ul>
 												<li class="time"><h2>
-														<?php print $result->destination_arrival_time; ?>
+														<?php print date("g:i a", strtotime($result->destination_arrival_time)); ?>
 													</h2></li>
 												<li class="location"><h6>
 														Arrive at
@@ -207,8 +211,8 @@
 								<?php $i = 1; ?>
 								<?php foreach ($return_results as $result) { ?>
 								<tr>
-									<td><?php print $result->departure_departure_time; ?></td>
-									<td><?php print $result->destination_arrival_time; ?></td>
+									<td><?php print date("g:i a", strtotime($result->departure_departure_time)); ?></td>
+									<td><?php print date("g:i a", strtotime($result->destination_arrival_time)); ?></td>
 									<td><?php print $result->duration; ?></td>
 									<td><?php print $result->price; ?></td>
 									<td class="center"><?php print $result->transfer;?></td>
@@ -238,7 +242,7 @@
 										<li>
 											<ul>
 												<li class="time"><h2>
-														<?php print $result->departure_arrival_time; ?>
+														<?php print date("g:i a", strtotime($result->departure_arrival_time)); ?>
 													</h2></li>
 												<li class="location"><h6>
 														Depart from
@@ -260,10 +264,35 @@
 												</li>
 											</ul>
 										</li>
+										<?php if($result->num_transfers){?>
+											<li class="transfer">
+												<h4><i class="icon-random"></i> Transfer</h4>
+												<ul>
+													<li class="time"><h2><?php print date("g:i a", strtotime($result->departure_transfer_departure_time)); ?></h2></li>
+													<li class="location">
+														<h6>Arrive at <?php print $result->from_stop_name; ?></h6>
+													</li>
+													<li class="transporter">
+														<p><small><i class="icon-time"></i> Layover: <?php print $result->layover_duration; ?></small></p>
+													</li>
+												</ul>
+											</li>
+											<li>
+												<ul>
+													<li class="time"><h2><?php print date("g:i a", strtotime($result->destination_transfer_arrival_time)); ?></h2></li>
+													<li class="location"><h6>Depart from <?php print $result->to_stop_name; ?></h6></li>
+													<li class="cost"><h6><?php print '$' . $result->second_leg_price; ?></h6></li>
+													<li class="transporter">
+														<a href="<?php print $result->destination_agency_url; ?>"><?php print stripslashes($result->destination_agency_name); ?> <i class="icon-external-link"></i></a>
+														<p><?php print $result->destination_agency_phone; ?>
+													</li>
+												</ul>
+											</li>
+										<?php } ?>
 										<li>
 											<ul>
 												<li class="time"><h2>
-														<?php print $result->destination_arrival_time; ?>
+														<?php print date("g:i a", strtotime($result->destination_arrival_time)); ?>
 													</h2></li>
 												<li class="location"><h6>
 														Arrive at

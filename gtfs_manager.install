@@ -2950,3 +2950,55 @@ function gtfs_manager_update_20() {
   db_add_index('countries', 'name_index', array('country_name'));
 }
 
+function gtfs_manager_update_21(){
+	$schema['transfer_suggestions'] = array(
+			'description' => 'Stores transfers',
+			'fields' => array(
+					'transfer_id' => array(
+							'description' => 'The primary identifier for a transfer.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE,
+					),
+					'from_stop_id' => array(
+							'description' => 'ID of the origin stop',
+							'type' => 'int',
+							'not null' => TRUE,
+					),
+					'to_stop_id' => array(
+							'description' => 'ID of the end stop',
+							'type' => 'int',
+							'not null' => TRUE,
+					),
+					'transfer_type' => array(
+							'description' => '0 reccomended transfer, 1 timed transfer, 2 has a min transfer time, 3 transfers are not possbile',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'updated_at' => array(
+							'type' => 'int',
+							'not null' => TRUE,
+					),
+					'updated_by' => array(
+							'type' => 'varchar',
+							'length' => 25,
+							'not null' => TRUE,
+					),
+					'status' => array(
+							'type' => 'int',
+							'length' => 1,
+							'not null' => TRUE,
+							'default' => 0,
+							'description' => '0 - suggested, 1 - active, 2 - ignored, 3 - invalid, 4 - forced',
+					),
+			),
+			'indexes' => array(
+					'transfer_id' => array('transfer_id'),
+			),
+			'primary key' => array('transfer_id')
+	);
+	
+	db_create_table('transfer_suggestions', $schema['transfer_suggestions']);
+}
+
