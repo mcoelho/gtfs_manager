@@ -98,4 +98,68 @@ class TripController extends DrupalDefaultEntityController {
   }
 
 
+  public function getTrips($tids, $conditions = array()) {
+    $trips = array();
+    $where = '';
+    $where_args = array();
+    
+    if (!empty($tids)) {
+      if (sizeof($tids) > 1) {
+	$where = 't.tid in :tids';
+	$where_args = array(':tids' => '(' . join(',', $tids) . ')');
+      } else {
+	$where = 't.tid = :tid';
+	$where_args = array(':tid' => $tids[0]);
+      }
+    } else {
+      $where = 't.rid = :rid';
+      $where_args = array(':rid' => $conditions[1]);
+    }
+    
+    $query = 'select t.tid '
+      .  ' ,  st.arrival_time as end_time'
+      .  ' ,  st.departure_time as start_time'
+      .  ' ,  t.rid '
+      .  ' ,  r.route_long_name '
+      .  ' ,  t.service_id '
+      .  ' ,  date_format(from_unixtime(c.start_date), \'%d-%m-%Y\') as start_date '
+      .  ' ,  date_format(from_unixtime(c.end_date), \'%d-%m-%Y\') as end_date '
+      .  ' ,  c.monday '
+      .  ' ,  c.tuesday '
+      .  ' ,  c.wednesday '
+      .  ' ,  c.thursday '
+      .  ' ,  c.friday '
+      .  ' ,  c.saturday '
+      .  ' ,  c.sunday '
+      .  ' from '
+      .  ' {trips} t '
+      .  ' join {routes} r on r.rid = t.rid '
+      .  ' left join {stop_times} st on st.tid = t.tid '
+      .  ' join {calendar} c on c.service_id = t.service_id '
+      .  ' where '
+      . $where
+      . ' order by st.departure_time';
+    
+    
+    
+    $result = db_query($query, $where_args);
+    
+    if ($result) {
+      while ($trip = $result->fetchObject()) {
+    	$days = array();
+    	if ($trip->monday == 1) { $days['monday'] = 'monday'; }
+    	if ($trip->tuesday == 1) { $days['tuesday'] = 'tuesday'; }
+    	if ($trip->wednesday == 1) { $days['wednesday'] = 'wednesday'; }
+    	if ($trip->thursday == 1) { $days['thursday'] = 'thursday'; }
+    	if ($trip->friday == 1) { $days['friday'] = 'friday'; }
+    	if ($trip->saturday == 1) { $days['saturday'] = 'saturday'; }
+    	if ($trip->sunday == 1) { $days['sunday'] = 'sunday'; }
+    	$trip->days = $days;
+	
+	$trips[] = $trip;
+      }
+    }
+    return $trips;
+  }
+ 
 }

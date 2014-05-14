@@ -492,7 +492,7 @@ function gtfs_manager_menu() {
 			'file' => 'route.pages.inc',
 	);
 
-	// Delete an agency
+	// Delete a route
 	$items['route/%route/delete'] = array(
 			'title' => 'Delete',
 			'page callback' => 'drupal_get_form',
@@ -504,6 +504,43 @@ function gtfs_manager_menu() {
 			'file' => 'route.pages.inc',
 	);
 
+	//
+	//Trips menus added by Rickey April 2014 
+	//
+
+	//Add a trip to a route
+	$items['route/%route/trip/add'] = array(
+			'title callback' => t('New Trip'),
+			'title arguments' => array(1),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('gtfs_manager_trip_form', entity_get_controller('trip')->create(), 1),
+			'weight' => 1,
+			'menu_name' => 'gtfs_manager',
+			'access arguments' => array('administer gtfs'),
+			'file' => 'trip.pages.inc',
+	);
+
+	$items['trip/%trip/edit'] = array(
+			'title' => 'Edit',
+			'page callback' => 'trip_page_edit',
+			'page arguments' => array(1),
+			'access arguments' => array('administer gtfs'),
+			'weight' => 0,
+			'type' => MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+			'file' => 'trip.pages.inc',
+	);
+
+	$items['route/%route/trips'] = array(
+			'title callback' => 'trip_page_title',
+			'title arguments' => array(1),
+			'page callback' => 'gtfs_manager_route_trips_view',
+			'page arguments' => array(1),
+			'access callback' => TRUE,
+			'file' => 'trip.pages.inc',
+	);
+
+	/*
 	//Add a stop for given route
 	$items['route/%route/stop/add'] = array(
 			'title callback' => t('New Stop'),
@@ -536,6 +573,7 @@ function gtfs_manager_menu() {
 			'menu_name' => 'gtfs_manager',
 			'file' => 'stop.pages.inc',
 	);
+	*/
 
 	//Add a feature for a given route
 	$items['agency/%agency/route/%route/feature/add'] = array(
@@ -576,7 +614,7 @@ function gtfs_manager_menu() {
 			'file' => 'stop.pages.inc',
 	);
 
-	// Delete a stop
+	// add calendar exception
 	$items['route/%/stop/%/calendar_date/add'] = array(
 			'title' => 'Add Exception',
 			'page callback' => 'drupal_get_form',
@@ -921,6 +959,9 @@ function gtfs_manager_theme() {
 			),
 			'gtfs_manager_route_stops_view' => array(
 					'template'  => 'gtfs-manager-route-stops-view',
+			),
+			'gtfs_manager_route_trips_view' => array(
+					'template' => 'gtfs-manager-route-trips-view',
 			),
 			'display_search_results' => array(
 					'template' => 'gtfs-manager-search-results',
@@ -1298,122 +1339,122 @@ function template_preprocess_display_search_results(&$variables) {
 	  //  }
 			//}
 
-			if ($result->search_type == 'one_transfer') {
-
-				$layover_arrival = new DateTime($result->departure_transfer_departure_time);
-				$layover_departure = new DateTime($result->destination_transfer_arrival_time);
-				$layover_interval = $layover_arrival->diff($layover_departure);
-				$result->layover_duration = $layover_interval->format('%h hr(s) %i min(s)');
-
-				$first_leg = '';
-				$second_leg = '';
-
-				//if either or both of the prices are not set
-				if (empty($result->first_leg_price) || empty($result->second_leg_price)) {
-
-					$first_leg = empty($result->first_leg_price)
-					? l(t('$ to ') . $result->from_stop_name, $result->departure_agency_fare_url, array('external' => TRUE))
-					: money_format('$%i', (float)$result->first_leg_price);
-
-					$second_leg = ($result->second_leg_price == null)
-					? l(t('$ to ') . $result->destination_city, $result->destination_agency_fare_url, array('external' => TRUE))
-					: money_format('$%i', (float)$result->second_leg_price);
-
-
-					$result->price = $first_leg . '<br />' . $second_leg;
-
-				} else {
-					$result->price = money_format('%i', ((float)$result->second_leg_price + (float)$result->first_leg_price));
-				}
-
-				$result->features = features_for($result);
-
-
-				$result->transfer = t('1 Transfer in @t. <em>Layover: @l</em>', array('@t' => $result->destination_city, '@l' => $result->layover_duration));
-
-				$result->transportation_type = t('@t1 to @t2', array('@t1' => $result->departure_transportation_type, '@t2' => $result->destination_transportation_type,));
-
-				$result->more_info = '<table><tr><td>'
-						. $result->departure_agency_name
-						. '</td>'
-								. '<td><b>Departs from: </b>'
-										. $result->departure_description
-										. '</td>'
-												. '<td><b>Departs from: </b>'
-														. $result->departure_description
-														. '</td>'
-																. '<td><b>Arrives at: </b>'
-																		. $result->destination_description
-																		. '</td>'
-																				. '<td><b>Arrives at: </b>'
-																						. $result->destination_description
-																						. '</td>'
-																								. '<td>'
-																										. $result->departure_agency_info
-																										. '</td>'
-																												. '<td>'
-																														. $result->departure_agency_phone
-																														. '</td>'
-																																. '<td>'
-																																		. $result->departure_agency_email
-																																		. '</td>'
-																																				. '</tr>'
-																																						. '<tr>'
-																																								. '<td>'
-																																										. $result->destination_agency_name
-																																										. '</td>'
-																																												. '<td><b>Departs from: </b>'
-																																														. $result->departure_description
-																																														. '</td>'
-																																																. '<td><b>Arrives at: </b>'
-																																																		. $result->destination_description
-																																																		. '</td>'
-																																																				. '<td>'
-																																																						. $result->destination_agency_info
-																																																						. '</td>'
-																																																								. '<td>'
-																																																										. $result->destination_agency_phone
-																																																										. '</td>'
-																																																												. '<td>'
-																																																														. $result->destination_agency_email
-																																																														. '</td></tr></table>';
-
-
-				$result->provider = l($result->departure_agency_name, $result->departure_agency_url) . ' to ' . l($result->destination_agency_name, $result->destination_agency_url);
-
-			} else {
-
-				$result->price = empty($result->price)
-				? l(t('View fares'), $result->agency_fare_url, array('external' => TRUE))
-				: money_format('$%i', (float)$result->price);
-
-				$result->features = features_for($result);
-
-				$result->more_info = '<table><tr>'
-						. '<td>'
-								. $result->departure_agency_name
-								. '</td>'
-										. '<td><b>Departs from: </b>'
-												. $result->departure_description
-												. '</td>'
-														. '<td><b>Arrives at: </b>'
-																. $result->destination_description
-																. '</td>'
-																		. '<td>'
-																				. $result->agency_info
-																				. '</td>'
-																						. '<td>'
-																								. $result->agency_phone
-																								. '</td>'
-																										. '<td>'
-																												. $result->agency_email
-																												. '</td>'
-																														. '</tr></table>';
-
-
-				$result->transfer = 0;
-				$result->provider = l($result->departure_agency_name, $result->departure_agency_url);
-			}
+		  if ($result->search_type == 'one_transfer') {
+		    
+		    $layover_arrival = new DateTime($result->departure_transfer_departure_time);
+		    $layover_departure = new DateTime($result->destination_transfer_arrival_time);
+		    $layover_interval = $layover_arrival->diff($layover_departure);
+		    $result->layover_duration = $layover_interval->format('%h hr(s) %i min(s)');
+		    
+		    $first_leg = '';
+		    $second_leg = '';
+		    
+		    //if either or both of the prices are not set
+		    if (empty($result->first_leg_price) || empty($result->second_leg_price)) {
+		      
+		      $first_leg = empty($result->first_leg_price)
+			? l(t('$ to ') . $result->from_stop_name, $result->departure_agency_fare_url, array('external' => TRUE))
+			: money_format('$%i', (float)$result->first_leg_price);
+		      
+		      $second_leg = ($result->second_leg_price == null)
+			? l(t('$ to ') . $result->destination_city, $result->destination_agency_fare_url, array('external' => TRUE))
+			: money_format('$%i', (float)$result->second_leg_price);
+		      
+		      
+		      $result->price = $first_leg . '<br />' . $second_leg;
+		      
+		    } else {
+		      $result->price = money_format('%i', ((float)$result->second_leg_price + (float)$result->first_leg_price));
+		    }
+		    
+		    $result->features = features_for($result);
+		    
+		    
+		    $result->transfer = t('1 Transfer in @t. <em>Layover: @l</em>', array('@t' => $result->destination_city, '@l' => $result->layover_duration));
+		    
+		    $result->transportation_type = t('@t1 to @t2', array('@t1' => $result->departure_transportation_type, '@t2' => $result->destination_transportation_type,));
+		    
+		    $result->more_info = '<table><tr><td>'
+		      . $result->departure_agency_name
+		      . '</td>'
+		      . '<td><b>Departs from: </b>'
+		      . $result->departure_description
+		      . '</td>'
+		      . '<td><b>Departs from: </b>'
+		      . $result->departure_description
+		      . '</td>'
+		      . '<td><b>Arrives at: </b>'
+		      . $result->destination_description
+		      . '</td>'
+		      . '<td><b>Arrives at: </b>'
+		      . $result->destination_description
+		      . '</td>'
+		      . '<td>'
+		      . $result->departure_agency_info
+		      . '</td>'
+		      . '<td>'
+		      . $result->departure_agency_phone
+		      . '</td>'
+		      . '<td>'
+		      . $result->departure_agency_email
+		      . '</td>'
+		      . '</tr>'
+		      . '<tr>'
+		      . '<td>'
+		      . $result->destination_agency_name
+		      . '</td>'
+		      . '<td><b>Departs from: </b>'
+		      . $result->departure_description
+		      . '</td>'
+		      . '<td><b>Arrives at: </b>'
+		      . $result->destination_description
+		      . '</td>'
+		      . '<td>'
+		      . $result->destination_agency_info
+		      . '</td>'
+		      . '<td>'
+		      . $result->destination_agency_phone
+		      . '</td>'
+		      . '<td>'
+		      . $result->destination_agency_email
+		      . '</td></tr></table>';
+		    
+		    
+		    $result->provider = l($result->departure_agency_name, $result->departure_agency_url) . ' to ' . l($result->destination_agency_name, $result->destination_agency_url);
+		    
+		  } else {
+		    
+		    $result->price = empty($result->price)
+		      ? l(t('View fares'), $result->agency_fare_url, array('external' => TRUE))
+		      : money_format('$%i', (float)$result->price);
+		    
+		    $result->features = features_for($result);
+		    
+		    $result->more_info = '<table><tr>'
+		      . '<td>'
+		      . $result->departure_agency_name
+		      . '</td>'
+		      . '<td><b>Departs from: </b>'
+		      . $result->departure_description
+		      . '</td>'
+		      . '<td><b>Arrives at: </b>'
+		      . $result->destination_description
+		      . '</td>'
+		      . '<td>'
+		      . $result->agency_info
+		      . '</td>'
+		      . '<td>'
+		      . $result->agency_phone
+		      . '</td>'
+		      . '<td>'
+		      . $result->agency_email
+		      . '</td>'
+		      . '</tr></table>';
+		    
+		    
+		    $result->transfer = 0;
+		    $result->provider = l($result->departure_agency_name, $result->departure_agency_url);
+		  }
 		}
 	}
 }
@@ -1517,27 +1558,27 @@ function process_results(&$results) {
 * preprocesses view data for and agency's routes
 */
 function template_preprocess_gtfs_manager_agency_routes(&$variables) {
-	//add features to each row
-	foreach ($variables['routes'] as $route) {
-		$route->features = fetch_features('route', $route->rid);
-	}
+  //add features to each row
+  foreach ($variables['routes'] as $route) {
+    $route->features = fetch_features('route', $route->rid);
+  }
 }
 
 function template_preprocess_gtfs_manager_all_features(&$variables) {
-	foreach ($variables['service_features'] as $service_feature) {
-		$image_variables = array(
-				'path' => $service_feature->service_feature_icon_url,
-				'height' => '50px',
-				'width' => '50px',
-		);
-		$service_feature->markup = '<div>'
-				. theme('image', $image_variables)
-				. '<h4>' . $service_feature->service_feature_name
-				. '</h4>' . l('Delete', 'service_feature/' . $service_feature->service_feature_id . '/delete')
-				. '<br />'
-						. l('Edit', 'service_feature/' . $service_feature->service_feature_id . '/edit')
-						. '</div><br />';
-	}
+  foreach ($variables['service_features'] as $service_feature) {
+    $image_variables = array(
+			     'path' => $service_feature->service_feature_icon_url,
+			     'height' => '50px',
+			     'width' => '50px',
+			     );
+    $service_feature->markup = '<div>'
+      . theme('image', $image_variables)
+      . '<h4>' . $service_feature->service_feature_name
+      . '</h4>' . l('Delete', 'service_feature/' . $service_feature->service_feature_id . '/delete')
+      . '<br />'
+      . l('Edit', 'service_feature/' . $service_feature->service_feature_id . '/edit')
+      . '</div><br />';
+  }
 }
 
 /**
@@ -1547,21 +1588,19 @@ function template_preprocess_gtfs_manager_all_features(&$variables) {
  * @param &$variables a reference to varables provided by theme_hook()
  */
 function template_preprocess_gtfs_manager_agency_detail(&$variables) {
-	$variables['classes'] = array('gtfs-manager-agency-detail');
-	$variables['creation_date'] = format_date($variables['agency']->created_at,
-			GTFS_MANAGER_DATE_FORMAT);
-
-	$variables['links'] = $variables['view_routes_link'] = l('View Routes',
-			'agency/' . $variables['agency']->aid . '/routes/view');
-
-	if (user_access('administer gtfs')) {
-
-		$variables['links'] .= ' | '
-				.  l('Edit', 'agency/' . $variables['agency']->aid . '/edit');
-
-		$variables['links'] .= ' | '
-				.  l('Add route', 'agency/' . $variables['agency']->aid . '/route/add');
-	}
+  $variables['classes'] = array('gtfs-manager-agency-detail');
+  $variables['creation_date'] = format_date($variables['agency']->created_at, GTFS_MANAGER_DATE_FORMAT);
+  
+  $variables['links'] = $variables['view_routes_link'] = l('View Routes', 'agency/' . $variables['agency']->aid . '/routes/view');
+  
+  if (user_access('administer gtfs')) {
+    
+    $variables['links'] .= ' | '
+      .  l('Edit', 'agency/' . $variables['agency']->aid . '/edit');
+    
+    $variables['links'] .= ' | '
+      .  l('Add route', 'agency/' . $variables['agency']->aid . '/route/add');
+  }
 }
 
 /**
@@ -1576,8 +1615,8 @@ function template_preprocess_gtfs_manager_route_detail(&$variables) {
 			GTFS_MANAGER_DATE_FORMAT);
 	$variables['transportation_type'] = 'FIXME';
 
-	$variables['links'] = l('View Stops',
-			'route/' . $variables['route']->rid . '/stops/view');
+	$variables['links'] = l('View Trips',
+			'route/' . $variables['trip']->rid . '/trips/view');
 
 
 	if (user_access('administer gtfs')) {
@@ -1585,10 +1624,10 @@ function template_preprocess_gtfs_manager_route_detail(&$variables) {
 				. l('Edit', 'route/' . $variables['route']->rid . '/edit');
 
 		$variables['links'] .= ' | '
-				. l('Add stop', 'route/' . $variables['route']->rid . '/stop/add');
+				. l('Add trip', 'route/' . $variables['route']->rid . '/trip/add');
 
 		$variables['links'] .= ' | '
-				. l('Upload Stops', 'route/' . $variables['route']->rid . '/upload');
+				. l('Upload Trips?', 'route/' . $variables['route']->rid . '/upload');
 
 		$variables['links'] .= ' | '
 				. l('Fares', 'route/' . $variables['route']->rid . '/fares/add');
@@ -1597,6 +1636,32 @@ function template_preprocess_gtfs_manager_route_detail(&$variables) {
 				. l('Features', 'route/' . $variables['route']->rid . '/feature/add');
 	}
 }
+
+/**
+ * Implements template_preprocess_hook()
+ *
+ * Prepares trips detail data for template gtfs-manager-route-trips-view.tpl.php
+ * @param &$variables a reference to varables provided by theme_hook()
+ */
+function template_preprocess_gtfs_manager_route_trips_view(&$variables) {
+  foreach ($variables['trips'] as $trip) {
+    $trip->links[] = l('View', 'trip/' . $trip->tid);
+    
+    if (user_access('administer gtfs')) {
+      $trip->links[] = l('Edit', 'trip/' . $trip->tid . '/edit');
+      $trip->links[] = l('Add Stops', 'stop/' . $trip->tid . '/add');
+    }
+    
+    $variables['links'] = array();
+    
+    $variables['links'][] =  l('Back to route','agency/' . $variables['route']->aid . '/routes');
+    
+    if (user_access('administer gtfs')) {
+      $variables['links'][] = l('Add another trip', 'route/' . $variables['route']->rid . '/trip/add');
+    }
+  }
+}
+
 
 /**
  * Implements template_preprocess_hook()
@@ -2325,7 +2390,8 @@ function stop_time_save($stop_time) {
  * @return an array of trips objects indexed by rid.
  */
 function trip_load_multiple($tids = array(), $conditions = array(), $reset = FALSE) {
-	return entity_load('trip', $tids, $conditions, $reset);
+  return entity_get_controller('trip')->getTrips($tids, $conditions);
+  //return entity_load('trip', $tids, $conditions, $reset);
 }
 
 /**
