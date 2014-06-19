@@ -276,7 +276,7 @@ function agency_routes_page_view($agency, $view_mode = 'full') {
   foreach ($routes as $route) {
 
     if ($route->route_service_type = 'point-to-point') {
-      $route->links[] = l(t('Stops'), 'route/' . $route->rid . '/stops');
+      $route->links[] = l(t('Trips'), 'route/' . $route->rid . '/trips');
     }
 
     if (user_access('administer gtfs')) {
@@ -285,7 +285,7 @@ function agency_routes_page_view($agency, $view_mode = 'full') {
 
       if ($route->route_service_type = 'point-to-point') {
         $route->links[] = l(t('Fares'), 'route/' . $route->rid . '/fares/add');
-        $route->links[] = l(t('Upload Stops'), 'route/' . $route->rid . '/upload');
+        //$route->links[] = l(t('Upload Stops'), 'route/' . $route->rid . '/upload');
       }
     }
   }
