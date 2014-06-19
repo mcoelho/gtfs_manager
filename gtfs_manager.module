@@ -2866,7 +2866,6 @@ function gtfs_manager_block_view($delta = ''){
 function gtfs_manager_search_widget($form, &$form_state){
 
 	$form['#attributes']['class'][] = 'search-form block';
-<<<<<<< HEAD
 
 	$form['header'] = array(
 			'#type' => 'markup',
@@ -2906,47 +2905,6 @@ function gtfs_manager_search_widget($form, &$form_state){
 			'#default_value' => 1,
 	);
 
-=======
-
-	$form['header'] = array(
-			'#type' => 'markup',
-			'#markup' => '<h3><i class="icon-search"></i> Quick Search</h3>',
-	);
-
-	//Text field for origin
-	$form['gtfs_manager_search_origin'] = array(
-			'#type' => 'textfield',
-			'#size' => 27,
-			'#autocomplete_path' => 'stopname/autocomplete',
-			'#required' => TRUE,
-			'#prefix' => '<ul class="a-b"><li>',
-			'#suffix' => '</li>',
-			'#attributes' => array(
-					'placeholder' => 'Enter Departure City/Town',
-			),
-	);
-
-	//Text field for destination
-	$form['gtfs_manager_search_destination'] = array(
-			'#type' => 'textfield',
-			'#size' => 27,
-			'#autocomplete_path' => 'stopname/autocomplete',
-			'#required' => TRUE,
-			'#prefix' => '<li>',
-			'#suffix' => '</li></ul>',
-			'#attributes' => array(
-					'placeholder' => 'Enter Destination City/Town',
-			),
-	);
-
-	//Radio button for round trip
-	$form['gtfs_manager_trip_type_radio'] = array(
-			'#type' => 'radios',
-			'#options' => array(0 => t('Round Trip'), 1 => t('One Way')),
-			'#default_value' => 1,
-	);
-
->>>>>>> e0fba5c24269722bb29dafd2c52af0193f74fb56
 	//Date picker for travel date -- needs default date
 		//Date picker for travel date -- needs default date
 	$form['gtfs_manager_search_date'] = array(
@@ -2968,11 +2926,7 @@ function gtfs_manager_search_widget($form, &$form_state){
 	$form['gtfs_manager_return_date'] = array(
 			'#type' => 'textfield',
 			'#attributes' => array(
-<<<<<<< HEAD
-					'class' => array('search-date'),
-=======
 					'class' => array('return-date'),
->>>>>>> e0fba5c24269722bb29dafd2c52af0193f74fb56
 					'placeholder' => 'Return (mm/dd/yyyy)'
 			),
 			'#states' => array(
@@ -3142,21 +3096,12 @@ function gtfs_manager_search_form_validate($form, &$form_state) {
 	$origin = $form_state['values']['gtfs_manager_search_origin'];
 	$destination = $form_state['values']['gtfs_manager_search_destination'];
 	
-<<<<<<< HEAD
 	if (empty($origin) || $origin == "Enter Departure City/Town") {
 		form_set_error('gtfs_manager_search_origin', t('Please choose an origin.'));
 	}
 
 	if (empty($destination) || $destination == "Enter Destination City/Town") {
 		form_set_error('gtfs_manager_search_destination', t('Please choose a destination.'));
-=======
-	if (empty($origin) || $origin == "Enter Destination City/Town") {
-		form_set_error('gtfs_manager_search_date', t('Please choose an origin.'));
-	}
-
-	if (empty($destination) || $destination == "Enter Destination City/Town") {
-		form_set_error('gtfs_manager_search_date', t('Please choose a destination.'));
->>>>>>> e0fba5c24269722bb29dafd2c52af0193f74fb56
 	}
 
 	//if not in db
@@ -3212,8 +3157,8 @@ function gtfs_manager_search_form_submit($form, &$form_state) {
 	$destination_province_code = preg_replace('/[()]/','', array_pop($destination_strings));
 	$destination_stop_name = implode(' ', $destination_strings);
 
-	$origin_centroid = fetch_centroid_for($origin_stop_name, $origin_province_code);
-	$destination_centroid = fetch_centroid_for($destination_stop_name, $destination_province_code);
+	//$origin_centroid = fetch_centroid_for($origin_stop_name, $origin_province_code);
+	//$destination_centroid = fetch_centroid_for($destination_stop_name, $destination_province_code);
 
 	$args = array(
 			'o' => $origin_stop_name,
