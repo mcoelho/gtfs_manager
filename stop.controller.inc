@@ -177,7 +177,7 @@ class StopController extends DrupalDefaultEntityController {
       .  ' ,  p.name as province_name '
       .  ' ,  p.code as province_code '
       .  ' ,  tz.name as time_zone_name '
-      .  ' ,  tz.offset as tz_offset '
+      .  ' ,  tz.hour_offset as tz_hour_offset '
       .  ' ,  co.country_code '
       .  ' ,  du.distance_unit_code '
       .  ' from '

@@ -1328,38 +1328,17 @@ function template_preprocess_display_search_results(&$variables) {
 				$result->transportation_type = t('@t1 to @t2', array('@t1' => $result->departure_transportation_type, '@t2' => $result->destination_transportation_type,));
 				$result->provider = l($result->departure_agency_name, $result->departure_agency_url) . ' to ' . l($result->destination_agency_name, $result->destination_agency_url);
 
-				$result->more_info = '<table><tr><td>'
-						. $result->departure_agency_name
-						. '</td>'
-								. '<td><b>Departs from:'
-										. $result->departure_description
-										. '</td>'
-												. '<td>'
-														. $result->departure_agency_info
-														. '</td>'
-																. '<td>'
-																		. $result->departure_agency_phone
-																		. '</td>'
-																				. '<td>'
-																						. $result->departure_agency_email
-																						. '</td>'
-																								. '</tr>'
-																										. '<tr>'
-																												. '<td>'
-																														. $result->destination_agency_name
-																														. '</td>'
-																																. '<td><b>Arrives at:'
-																																		. $result->destination_description
-																																		. '</td>'
-																																				. '<td>'
-																																						. $result->destination_agency_info
-																																						. '</td>'
-																																								. '<td>'
-																																										. $result->destination_agency_phone
-																																										. '</td>'
-																																												. '<td>'
-																																														. $result->destination_agency_email
-																																														. '</td></tr></table>';
+				$result->more_info = '<table><tr><td>'. $result->departure_agency_name. '</td>'. '<td><b>Departs from:'. $result->departure_description
+				. '</td>'. '<td>'. $result->departure_agency_info. '</td>'. '<td>'. $result->departure_agency_phone. '</td>'. '<td>'. $result->departure_agency_email
+				. '</td>'. '</tr>'. '<tr>'. '<td>'. $result->destination_agency_name. '</td>'. '<td><b>Arrives at:'. $result->destination_description. '</td>'																																			. '<td>'
+				. $result->destination_agency_info
+				. '</td>'
+						. '<td>'
+								. $result->destination_agency_phone
+								. '</td>'
+										. '<td>'
+												. $result->destination_agency_email
+												. '</td></tr></table>';
 
 			} else {
 
@@ -1371,24 +1350,24 @@ function template_preprocess_display_search_results(&$variables) {
 
 				$result->more_info = '<table><tr>'
 						. '<td>'
-								. $result->departure_agency_name
-								. '</td>'
-										. '<td><b>Departs from: </b>'
-												. $result->departure_description
+						. $result->departure_agency_name
+						. '</td>'
+								. '<td><b>Departs from: </b>'
+										. $result->departure_description
+										. '</td>'
+										. '<td><b>Arrives at: </b>'
+										. $result->destination_description
+										. '</td>'
+												. '<td>'
+												. $result->agency_info
 												. '</td>'
-														. '<td><b>Arrives at: </b>'
-																. $result->destination_description
-																. '</td>'
-																		. '<td>'
-																				. $result->agency_info
-																				. '</td>'
-																						. '<td>'
-																								. $result->agency_phone
-																								. '</td>'
-																										. '<td>'
-																												. $result->agency_email
-																												. '</td>'
-																														. '</tr></table>';
+												. '<td>'
+												. $result->agency_phone
+												. '</td>'
+												. '<td>'
+													. $result->agency_email
+													. '</td>'
+													. '</tr></table>';
 
 				$result->transfer = 0;
 				$result->provider = l($result->departure_agency_name, $result->departure_agency_url);
@@ -3293,7 +3272,7 @@ from
   , st.stop_sequence as departure_stop_sequence
   , t.rid as departure_rid
   , r.route_long_name
-  , tz.offset as departure_offset
+  , tz.hour_offset as departure_offset
 from stops s
 join provinces p
 on p.province_id = s.province_id
@@ -3367,7 +3346,7 @@ join
   ,  tt.transportation_type_name as destination_transportation_type
   ,  dayname(:date) as destination_day
   ,  :epoc as date
-  ,  tz.offset as destination_offset
+  ,  tz.hour_offset as destination_offset
 from stops s
 join provinces p
 on p.province_id = s.province_id
@@ -4662,7 +4641,7 @@ select s.stop_name as destination_city
 ,  r.rid
 ,  dayname(:date) as destination_day
 ,  :epoc as date
-,  tz.offset as destination_offset
+,  tz.hour_offset as destination_offset
 from
  stops s
 join provinces p
@@ -4701,7 +4680,7 @@ select s.stop_name as departure_city
 ,  dayname(:date) as departure_day
 ,  tt.transportation_type_name as transportation_type
 ,  if(s.wheelchair_boarding = 1, 'Wheelchair access', '') as wheelchair_access
-,  tz.offset as departure_offset
+,  tz.hour_offset as departure_offset
 from
  stops s
 join provinces p
@@ -4835,7 +4814,7 @@ from
   , st.stop_sequence as departure_stop_sequence
   , t.rid as departure_rid
   , r.route_long_name
-  , tz.offset as departure_offset
+  , tz.hour_offset as departure_offset
 from stops s
 join provinces p
 on p.province_id = s.province_id
@@ -4910,7 +4889,7 @@ join
   ,  tt.transportation_type_name as destination_transportation_type
   ,  dayname(:date) as destination_day
   ,  :epoc as date
-  ,  tz.offset as destination_offset
+  ,  tz.hour_offset as destination_offset
 from stops s
 join provinces p
 on p.province_id = s.province_id
