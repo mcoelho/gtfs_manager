@@ -3967,26 +3967,24 @@ SQL;
 
 	function gtfs_manager_stop_name_autocomplete($string) {
 		$matches = array();
-
-		// build autocomplete results using a union between cities and stops tables
-		// stops
-		$query = db_select('stops', 's')
-		->fields('s', array('stop_name'))
-		->fields('p', array('code'));
-		$query->leftJoin('provinces', 'p', 's.province_id = p.province_id');
-		$query->condition('s.stop_name', '%' . db_like($string) . '%', 'LIKE');
-		$query->range(0, 10);
-		// cities
-		$query2 = db_select('cities', 'c')
-		->fields('c', array('city_name'))
-		->fields('p', array('code'));
-		$query2->leftJoin('provinces', 'p', 'c.province_id = p.province_id');
-		$query2->condition('c.city_name', '%' . db_like($string) . '%', 'LIKE');
-		$query2->range(0, 10);
-
-		$query->union($query2, 'UNION DISTINCT');
-
-		$result = $query->execute();
+		$result = db_query(
+			"SELECT * FROM (
+				SELECT s.stop_name AS stop_name, p.code AS code
+				FROM stops s LEFT OUTER JOIN provinces p ON s.province_id = p.province_id
+				WHERE (s.stop_name ILIKE :string)
+				LIMIT 10
+				OFFSET 0
+			) t1
+			UNION DISTINCT
+			SELECT * FROM (
+				SELECT c.city_name AS city_name, p.code AS code
+				FROM cities c LEFT OUTER JOIN provinces p ON c.province_id = p.province_id
+				WHERE (c.city_name ILIKE :string)
+				LIMIT 10
+				OFFSET 0
+			) t2",
+			array(':string' => "%".$string."%")
+		);
 
 		while ($match = $result->fetchObject() ) {
 			$match = check_plain($match->stop_name) . ' (' . check_plain($match->code) . ')';
