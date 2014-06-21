@@ -6,8 +6,6 @@
  *
  * Enables gtfs manager
  */
-
-
 define('GTFS_MANAGER_DATE_FORMAT', 'Y');
 define('GTFS_MANAGER_DATETIME_FORMAT', 'F d, Y');
 
@@ -27,7 +25,7 @@ function gtfs_manager_init() {
 */
 function gtfs_manager_preprocess_page(&$vars) {
 	drupal_add_js('http://maps.google.com/maps/api/js?sensor=false', 'external');
-	drupal_add_js(  drupal_get_path('module', 'gtfs_manager')  . '/search_form_theme.js');
+	drupal_add_js(drupal_get_path('module', 'gtfs_manager').'/search_form_theme.js');
 }
 
 /**
@@ -303,7 +301,6 @@ function gtfs_manager_entity_info() {
 	);
 
 	return $entities;
-
 }
 
 /**
@@ -1004,7 +1001,6 @@ function gtfs_manager_menu() {
 	return $items;
 }
 
-
 /**
  * Implements hook_permission().
  */
@@ -1605,7 +1601,6 @@ function process_results(&$results) {
 	}
 }
 
-
 /*
  * Implement template_preprocess_hook()
 *
@@ -1791,7 +1786,6 @@ function template_preprocess_gtfs_manager_zombie_report(&$variables) {
 	}
 
 }
-
 
 /*
  * prepares trip information for trip detail template
@@ -2159,7 +2153,6 @@ function gtfs_manager_show_stop_detail($tid) {
 
 	return theme('gtfs_manager_trip_detail', $variables);
 }
-
 
 /**
  * Fetches all transportation types
