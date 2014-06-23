@@ -83,11 +83,7 @@
 										<li>
 											<ul>
 												<li class="time"><h2>
-<<<<<<< HEAD
 														<?php print date("g:i a", strtotime($result->departure_departure_time)); ?>
-=======
-														<?php print $result->departure_departure_time; ?>
->>>>>>> e0fba5c24269722bb29dafd2c52af0193f74fb56
 													</h2></li>
 												<li class="location"><h6>
 														Depart from

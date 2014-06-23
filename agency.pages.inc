@@ -338,8 +338,6 @@ function gtfs_manager_agency_feature_form($form, &$form_state, $agency_service_f
   return $form;
 }
 
-
-
 function gtfs_manager_agency_service_features_form_validate($form, &$form_state) {
 
 }
@@ -386,7 +384,6 @@ function gtfs_manager_agency_service_features_form_submit($form, &$form_state) {
   drupal_set_message(t('Agency Service Feature(s) updated'));
 
   $form_state['redirect'] = 'agencies/';
-
 }
 
 /**
@@ -937,5 +934,4 @@ function gtfs_manager_agency_fares_download($agency) {
     readfile($file);
     fclose($fh);
   }
-
 }
