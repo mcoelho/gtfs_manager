@@ -19,7 +19,7 @@
   <p><b>Arrives at: </b><?php print render($stop['arrival_time']); ?></p>
   <p><b>Departs at: </b><?php print render($stop['departure_time']); ?></p>
   <p><b>Sequence in route: </b><?php print render($stop['stop_sequence']); ?></p>
-  <p><b>Lattitude: </b><?php print render($stop['stop_lat']); ?></p>
+  <p><b>Latitude: </b><?php print render($stop['stop_lat']); ?></p>
   <p><b>Longitude: </b><?php print render($stop['stop_long']); ?></p>
 <?php print $edit_link; ?> | <?php print $delete_link; ?>
 </div>
