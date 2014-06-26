@@ -4603,7 +4603,141 @@ SQL;
 	}
 
 	function fetch_p2p_results(&$results, $args){
-		$query =<<<SQL
+		$query = "SELECT
+  destination.*,
+  departure.* ,
+  COALESCE(fa.price, fa2.price) AS price,
+  string_agg(DISTINCT concat(sf.service_feature_name, '-', sf.service_feature_icon_url), ',') AS route_service_features,
+  string_agg(DISTINCT concat(sf2.service_feature_name, '-', sf2.service_feature_icon_url), ',') AS agency_service_features,
+  string_agg(DISTINCT concat(sf3.service_feature_name, '-', sf3.service_feature_icon_url), ',') AS from_stop_service_features,
+  string_agg(DISTINCT concat(sf3.service_feature_name, '-', sf4.service_feature_icon_url), ',') AS to_stop_service_features
+FROM (
+  SELECT
+    s.stop_name AS destination_city,
+    p.code AS destination_province_code,
+    s.zone_id AS destination_zone_id,
+    s.sid AS destination_sid,
+    s.stop_desc AS destination_description,
+    st.arrival_time AS destination_arrival_time,
+    st.departure_time AS destination_departure_time,
+    st.stop_sequence AS destination_stop_sequence,
+    a.aid AS destination_aid,
+    a.agency_name AS destination_agency_name,
+    a.agency_url AS destination_agency_url,
+    a.agency_fare_url,
+    a.agency_info,
+    a.agency_phone,
+    a.agency_email,
+    r.route_long_name,
+    r.rid,
+    to_char(TIMESTAMP :date, 'day') AS destination_day,
+    :epoc AS date,
+    tz.hour_offset AS destination_offset
+  FROM
+    stops s
+      JOIN provinces p ON p.province_id = s.province_id
+      JOIN stop_times st ON st.sid = s.sid
+      JOIN trips t ON t.tid = st.tid
+      JOIN calendar c ON c.service_id = t.service_id
+      JOIN routes r ON r.rid = t.rid
+      JOIN agencies a ON a.aid = r.aid
+      JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+    WHERE
+      s.stop_name = :d
+      AND p.code = :dpc
+      AND :epoc BETWEEN c.start_date AND c.end_date
+) AS destination
+  JOIN (
+    SELECT
+      s.stop_name AS departure_city,
+      p.code AS departure_province_code,
+      s.zone_id AS departure_zone_id,
+      s.sid AS departure_sid,
+      s.stop_desc AS departure_description,
+      st.departure_time AS departure_departure_time,
+      st.arrival_time AS departure_arrival_time,
+      st.stop_sequence AS departure_stop_sequence,
+      a.agency_name AS departure_agency_name,
+      a.agency_url AS departure_agency_url,
+      r.route_long_name,
+      r.rid,
+      to_char(TIMESTAMP :date, 'day') AS departure_day,
+      tt.transportation_type_name AS transportation_type,
+      CASE
+        WHEN CAST(s.wheelchair_boarding AS INTEGER) = 1 THEN 'Wheelchair access'
+        ELSE ''
+      END AS wheelchair_access,
+      tz.hour_offset AS departure_offset
+    FROM
+      stops s
+        JOIN provinces p ON p.province_id = s.province_id
+        JOIN stop_times st ON st.sid = s.sid
+        JOIN trips t ON t.tid = st.tid
+        JOIN calendar c ON c.service_id = t.service_id
+        JOIN routes r ON r.rid = t.rid
+        JOIN agencies a ON a.aid = r.aid
+        JOIN transportation_types tt ON tt.transportation_type_id = r.transportation_type_id
+        JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+    WHERE
+      s.stop_name = :o
+      AND p.code = :opc
+      AND :epoc between c.start_date AND c.end_date
+      AND to_char(TIMESTAMP :date, 'day') in (
+        CASE
+          WHEN CAST(c.monday AS INTEGER) = 1 THEN 'monday'ELSE ''
+        END,
+        CASE
+          WHEN CAST(c.tuesday AS INTEGER) = 1 THEN 'tuesday' ELSE ''
+        END,
+        CASE
+          WHEN CAST(c.wednesday AS INTEGER) = 1 THEN 'wednesday' ELSE ''
+        END,
+        CASE
+          WHEN CAST(c.thursday AS INTEGER) = 1 THEN 'thursday' ELSE ''
+        END,
+        CASE
+          WHEN CAST(c.friday AS INTEGER) = 1 THEN 'friday' ELSE ''
+        END,
+        CASE
+          WHEN CAST(c.saturday AS INTEGER) = 1 THEN 'saturday' ELSE ''
+        END,
+        CASE
+          WHEN CAST(c.sunday AS INTEGER) = 1 THEN 'sunday' ELSE ''
+        END
+      )
+  ) AS departure ON departure.rid = destination.rid
+      LEFT JOIN fare_rules fr ON fr.origin_id = departure.departure_zone_id
+        AND fr.destination_id = destination.destination_zone_id
+        AND departure.departure_zone_id != 0
+        AND destination.destination_zone_id != 0
+      LEFT JOIN fare_attributes fa ON fa.fare_id = fr.fare_id
+      LEFT JOIN fare_rules fr2 ON fr2.contains_id = destination.destination_zone_id
+        AND fr2.contains_id = departure.departure_zone_id
+        AND fr2.contains_id != 0
+      LEFT JOIN fare_attributes fa2 ON fa2.fare_id = fr2.fare_id
+      LEFT JOIN route_service_features rsf ON rsf.rid = destination.rid
+      LEFT JOIN service_features sf ON sf.service_feature_id = rsf.service_feature_id
+      LEFT JOIN agency_service_features asf ON asf.aid = destination.destination_aid
+      LEFT JOIN service_features sf2 ON sf2.service_feature_id = asf.service_feature_id
+      LEFT JOIN stop_service_features ssf ON ssf.sid = departure.departure_sid
+      LEFT JOIN service_features sf3 ON sf3.service_feature_id = ssf.service_feature_id
+      LEFT JOIN stop_service_features ssf2 ON ssf2.sid = destination.destination_sid
+      LEFT JOIN service_features sf4 ON sf4.service_feature_id = ssf2.service_feature_id
+GROUP BY
+  destination.destination_aid,
+  destination.rid,
+  destination.destination_sid,
+  departure.departure_sid
+
+HAVING
+  destination.destination_stop_sequence > departure.departure_stop_sequence
+ORDER BY
+  departure_departure_time ASC,
+  destination_arrival_time ASC";
+
+		//OLD QUERY
+		
+		/*$query =<<<SQL
   select destination.*
   ,  departure.*
   ,  ifnull(fa.price, fa2.price) as price
@@ -4729,6 +4863,10 @@ group by destination.destination_aid, destination.rid, destination.destination_s
 having destination.destination_stop_sequence > departure.departure_stop_sequence
   order by time(departure_departure_time) asc, time(destination_arrival_time) asc
 SQL;
+*/
+
+		//unknown old code
+
 		/*$dayname = $args['dayname'];
 	
 		$query = db_select('routes', 'routes');

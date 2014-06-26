@@ -105,42 +105,39 @@ class TripController extends DrupalDefaultEntityController {
     
     if (!empty($tids)) {
       if (sizeof($tids) > 1) {
-	$where = 't.tid in :tids';
-	$where_args = array(':tids' => '(' . join(',', $tids) . ')');
+        $where = 't.tid in :tids';
+        $where_args = array(':tids' => '(' . join(',', $tids) . ')');
       } else {
-	$where = 't.tid = :tid';
-	$where_args = array(':tid' => $tids[0]);
+      	$where = 't.tid = :tid';
+      	$where_args = array(':tid' => $tids[0]);
       }
     } else {
       $where = 't.rid = :rid';
       $where_args = array(':rid' => $conditions[1]);
     }
     
-    $query = 'select t.tid '
-      .  ' ,  st.arrival_time as end_time'
-      .  ' ,  st.departure_time as start_time'
-      .  ' ,  t.rid '
-      .  ' ,  r.route_long_name '
-      .  ' ,  t.service_id '
-      .  ' ,  date_format(from_unixtime(c.start_date), \'%d-%m-%Y\') as start_date '
-      .  ' ,  date_format(from_unixtime(c.end_date), \'%d-%m-%Y\') as end_date '
-      .  ' ,  c.monday '
-      .  ' ,  c.tuesday '
-      .  ' ,  c.wednesday '
-      .  ' ,  c.thursday '
-      .  ' ,  c.friday '
-      .  ' ,  c.saturday '
-      .  ' ,  c.sunday '
-      .  ' from '
-      .  ' {trips} t '
-      .  ' join {routes} r on r.rid = t.rid '
-      .  ' left join {stop_times} st on st.tid = t.tid '
-      .  ' join {calendar} c on c.service_id = t.service_id '
-      .  ' where '
-      . $where
-      . ' order by st.departure_time';
-    
-    
+    $query = "select t.tid
+              , st.arrival_time as end_time
+              , st.departure_time as start_time
+              , t.rid
+              , r.route_long_name
+              , t.service_id
+              , to_char(to_timestamp(CAST(c.start_date AS INTEGER)), 'DD-MM-YYYY') as start_date
+              , to_char(to_timestamp(CAST(c.end_date AS INTEGER)), 'DD-MM-YYYY') as end_date
+              , c.monday
+              , c.tuesday
+              , c.wednesday
+              , c.thursday
+              , c.friday
+              , c.saturday
+              , c.sunday
+            from
+              {trips} t
+                join {routes} r on r.rid = t.rid
+                left join {stop_times} st on st.tid = t.tid
+                join {calendar} c on c.service_id = t.service_id
+              where
+                ". $where ." order by st.departure_time";
     
     $result = db_query($query, $where_args);
     
