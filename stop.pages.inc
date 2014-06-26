@@ -19,13 +19,44 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
     '#type' => 'hidden',
     '#value' => $route_id,
   );
+  
 
+  
   //Stop Section
+  
+//Select a stop from pre-existing set of stops
+
+<h2>Select a stop:</h2>
+
+//Textfields for lat and long
+
+$form['gtfs_manager_stop_select_lat'] = array(
+  '#type' => 'textfield',
+    '#title' => t('Latitude for this stop location'),
+    '#description' => t('Latitude for this stop.  Up to 8 points of precision.'),
+    '#size' => 24,
+    '#default_value' => $stop->stop_lat,
+  );
+
+  $form['gtfs_manager_stop_select_long'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Longitude for this stop location'),
+    '#description' => t('Longitude for this stop. Up to 8 points of precision.'),
+    '#size' => 24,
+    '#default_value' => $stop->stop_long,
+  );
+
+//need a function to retrieve matching stops from database and display them below in a list
+
+
+//Add a stop section (stops not previously defined in DB)
+
+<h2>Add a new stop (NOTE: Only use this option if your stop was not found above.</h2>
 
   //Textfield for stop name
   $form['gtfs_manager_stop_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Name for this stop. example: Truro'),
+    '#title' => t('Name for this stop. Example: Truro'),
     '#description' => t('The name of this stop'),
     '#size' => 40,
     '#default_value' => $stop->stop_name,
@@ -65,11 +96,11 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
     '#default_value' => $stop->wheelchair_boarding,
   );
 
-  //tetfield for stop lattitude
+  //textfield for stop latitude
   $form['gtfs_manager_stop_lat'] = array(
     '#type' => 'textfield',
-    '#title' => t('Latitude for this this stop location'),
-    '#description' => t('Lattitude for this stop.  Up to 8 points of precision.'),
+    '#title' => t('Latitude for this stop location'),
+    '#description' => t('Latitude for this stop.  Up to 8 points of precision.'),
     '#size' => 24,
     '#default_value' => $stop->stop_lat,
     '#required' => TRUE,
@@ -78,8 +109,8 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
   //tetfield for stop longitude
   $form['gtfs_manager_stop_long'] = array(
     '#type' => 'textfield',
-    '#title' => t('Longitude for this this stop location'),
-    '#description' => t('Longintude for this stop. Up to 8 points of precision.'),
+    '#title' => t('Longitude for this stop location'),
+    '#description' => t('Longitude for this stop. Up to 8 points of precision.'),
     '#size' => 24,
     '#default_value' => $stop->stop_long,
     '#required' => TRUE,
@@ -152,13 +183,13 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
   $form['gtfs_manager_schedule_days'] = array(
     '#type' => 'checkboxes',
     '#options' => drupal_map_assoc(array(
-			t('monday'),
-			t('tuesday'),
-			t('wednesday'),
-			t('thursday'),
-			t('friday'),
-			t('saturday'),
-			t('sunday')
+			t('Monday'),
+			t('Tuesday'),
+			t('Wednesday'),
+			t('Thursday'),
+			t('Friday'),
+			t('Saturday'),
+			t('Sunday')
 					 )),
     '#default_value' => $stop->days,
     '#title' => t('Which days will this route run?'),
