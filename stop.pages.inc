@@ -30,21 +30,20 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
 
 //Textfields for lat and long
 
+$form['gtfs_manager_stop_select_lat'] = array(
   '#type' => 'textfield',
-    '#title' => t('Latitude for this this stop location'),
-    '#description' => t('Lattitude for this stop.  Up to 8 points of precision.'),
+    '#title' => t('Latitude for this stop location'),
+    '#description' => t('Latitude for this stop.  Up to 8 points of precision.'),
     '#size' => 24,
     '#default_value' => $stop->stop_lat,
-    '#required' => TRUE,
   );
 
-  $form['gtfs_manager_stop_long'] = array(
+  $form['gtfs_manager_stop_select_long'] = array(
     '#type' => 'textfield',
-    '#title' => t('Longitude for this this stop location'),
-    '#description' => t('Longintude for this stop. Up to 8 points of precision.'),
+    '#title' => t('Longitude for this stop location'),
+    '#description' => t('Longitude for this stop. Up to 8 points of precision.'),
     '#size' => 24,
     '#default_value' => $stop->stop_long,
-    '#required' => TRUE,
   );
 
 //need a function to retrieve matching stops from database and display them below in a list
@@ -100,8 +99,8 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
   //textfield for stop latitude
   $form['gtfs_manager_stop_lat'] = array(
     '#type' => 'textfield',
-    '#title' => t('Latitude for this this stop location'),
-    '#description' => t('Lattitude for this stop.  Up to 8 points of precision.'),
+    '#title' => t('Latitude for this stop location'),
+    '#description' => t('Latitude for this stop.  Up to 8 points of precision.'),
     '#size' => 24,
     '#default_value' => $stop->stop_lat,
     '#required' => TRUE,
@@ -110,8 +109,8 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
   //tetfield for stop longitude
   $form['gtfs_manager_stop_long'] = array(
     '#type' => 'textfield',
-    '#title' => t('Longitude for this this stop location'),
-    '#description' => t('Longintude for this stop. Up to 8 points of precision.'),
+    '#title' => t('Longitude for this stop location'),
+    '#description' => t('Longitude for this stop. Up to 8 points of precision.'),
     '#size' => 24,
     '#default_value' => $stop->stop_long,
     '#required' => TRUE,
@@ -184,13 +183,13 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
   $form['gtfs_manager_schedule_days'] = array(
     '#type' => 'checkboxes',
     '#options' => drupal_map_assoc(array(
-			t('monday'),
-			t('tuesday'),
-			t('wednesday'),
-			t('thursday'),
-			t('friday'),
-			t('saturday'),
-			t('sunday')
+			t('Monday'),
+			t('Tuesday'),
+			t('Wednesday'),
+			t('Thursday'),
+			t('Friday'),
+			t('Saturday'),
+			t('Sunday')
 					 )),
     '#default_value' => $stop->days,
     '#title' => t('Which days will this route run?'),
