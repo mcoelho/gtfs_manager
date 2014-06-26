@@ -19,8 +19,40 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
     '#type' => 'hidden',
     '#value' => $route_id,
   );
+  
 
+  
   //Stop Section
+  
+//Select a stop from pre-existing set of stops
+
+<h2>Select a stop:</h2>
+
+//Textfields for lat and long
+
+  '#type' => 'textfield',
+    '#title' => t('Latitude for this this stop location'),
+    '#description' => t('Lattitude for this stop.  Up to 8 points of precision.'),
+    '#size' => 24,
+    '#default_value' => $stop->stop_lat,
+    '#required' => TRUE,
+  );
+
+  $form['gtfs_manager_stop_long'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Longitude for this this stop location'),
+    '#description' => t('Longintude for this stop. Up to 8 points of precision.'),
+    '#size' => 24,
+    '#default_value' => $stop->stop_long,
+    '#required' => TRUE,
+  );
+
+//need a function to retrieve matching stops from database and display them below in a list
+
+
+//Add a stop section (stops not previously defined in DB)
+
+<h2>Add a new stop (NOTE: Only use this option if your stop was not found above.</h2>
 
   //Textfield for stop name
   $form['gtfs_manager_stop_name'] = array(
@@ -65,7 +97,7 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
     '#default_value' => $stop->wheelchair_boarding,
   );
 
-  //tetfield for stop lattitude
+  //textfield for stop latitude
   $form['gtfs_manager_stop_lat'] = array(
     '#type' => 'textfield',
     '#title' => t('Latitude for this this stop location'),
