@@ -25,7 +25,7 @@ function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null
   //Textfield for stop name
   $form['gtfs_manager_stop_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Name for this stop. example: Truro'),
+    '#title' => t('Name for this stop. Example: Truro'),
     '#description' => t('The name of this stop'),
     '#size' => 40,
     '#default_value' => $stop->stop_name,
