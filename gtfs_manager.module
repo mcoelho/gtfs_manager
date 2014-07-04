@@ -539,7 +539,7 @@ function gtfs_manager_menu() {
 
 	/*
 	//Add a stop for given route
-	$items['route/%route/stop/add'] = array(
+	$items['route/%route/trips/$trip/addstop'] = array(
 			'title callback' => t('New Stop'),
 			'title arguments' => array(1),
 			'page callback' => 'drupal_get_form',
@@ -550,6 +550,33 @@ function gtfs_manager_menu() {
 			'access arguments' => array('administer gtfs'),
 			'file' => 'stop.pages.inc',
 	);
+
+	//Select a stop for given trip from list
+	$items['route/%route/trips/addstop/select'] = array(
+			'title callback' => 'trip_select_stop',
+			'title arguments' => array(1),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('gtfs_manager_stop_select',
+					entity_get_controller('stop')->create(), 1),
+			'weight' => 1,
+			'menu_name' => 'gtfs_manager',
+			'access arguments' => array('administer gtfs'),
+			'file' => 'stop.pages.inc',
+	);
+
+	//Select a stop for given trip from list
+	$items['route/%route/trips/addstop/create'] = array(
+			'title callback' => 'trip_select_stop',
+			'title arguments' => array(1),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('gtfs_manager_stop_select',
+					entity_get_controller('stop')->create(), 1),
+			'weight' => 1,
+			'menu_name' => 'gtfs_manager',
+			'access arguments' => array('administer gtfs'),
+			'file' => 'stop.pages.inc',
+	);
+
 
 	//Show and agencies routes
 	$items['route/%route/stops'] = array(
@@ -1698,7 +1725,11 @@ function template_preprocess_gtfs_manager_route_trips_view(&$variables) {
     
     if (user_access('administer gtfs')) {
       $trip->links[] = l('Edit', 'trip/' . $trip->tid . '/edit');
-      $trip->links[] = l('Add Stops', 'stop/' . $trip->tid . '/add');
+     
+      //This changes the URL for 'Add Stops' on the trips view page to go to the 'addstop' page. 
+      $trip->links[] = l('Add Stops', 'trip/' . $trip->tid . '/addstop');
+
+      //$trip->links[] = l('Add Stops', 'stop/' . $trip->tid . '/add');
     }
     
     $variables['links'] = array();
@@ -1711,6 +1742,26 @@ function template_preprocess_gtfs_manager_route_trips_view(&$variables) {
   }
 }
 
+
+/**
+ * Implements template_preprocess_hook()
+ *
+ * Prepares stop entry data for template gtfs-manager-add-stop-view.tpl.php
+ * @param &$variables a reference to varables provided by theme_hook()
+ */
+function template_preprocess_gtfs_manager_add_stop_view(&$variables) {
+    
+    $variables['stop_links'] = array();
+    if (user_access('administer gtfs')) {
+
+    	$variables['stop_links'][] = l('Select Existing', 'addstop/select');
+    	$variables['stop_links'][] = l('Create New', 'addstop/create');
+    }
+    
+    $variables['links'] = array();
+    
+    $variables['links'][] =  l('Back to trip','route/' . $variables['route']->rid . '/trips');
+}
 
 /**
  * Implements template_preprocess_hook()
