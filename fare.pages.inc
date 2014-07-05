@@ -243,7 +243,7 @@ function gtfs_manager_route_fares_form_submit($form, &$form_state) {
   drupal_set_message('Fare Rule(s) saved');
 }
 
-
+//possible sql fix needed
 function fetch_stop_combinations($rid) {
   $query =<<<SQL
 select  s.sid as from_sid

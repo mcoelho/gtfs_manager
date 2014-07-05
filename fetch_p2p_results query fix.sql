@@ -107,31 +107,18 @@ WHERE
   s.stop_name = :o
   AND p.code = :opc
   AND :epoc between c.start_date AND c.end_date
-  AND to_char(TIMESTAMP :date, 'day') in (
-    CASE
-      WHEN CAST(c.monday AS INTEGER) = 1 THEN 'monday'ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.tuesday AS INTEGER) = 1 THEN 'tuesday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.wednesday AS INTEGER) = 1 THEN 'wednesday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.thursday AS INTEGER) = 1 THEN 'thursday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.friday AS INTEGER) = 1 THEN 'friday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.saturday AS INTEGER) = 1 THEN 'saturday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.sunday AS INTEGER) = 1 THEN 'sunday' ELSE ''
-    END
+  AND
+   (
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 1 AND CAST(c.monday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 2 AND CAST(c.tuesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 3 AND CAST(c.wednesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 4 AND CAST(c.thursday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 5 AND CAST(c.friday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 6 AND CAST(c.saturday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 0 AND CAST(c.sunday AS INTEGER) = 1)
   )
 
-departure test - returns no rows:
+departure test - works:
 
 SELECT
   s.stop_name AS departure_city,
@@ -167,57 +154,20 @@ WHERE
   s.stop_name = 'Halifax'
   AND p.code = 'NS'
   AND 1408762800 between c.start_date AND c.end_date
-  AND to_char(TIMESTAMP '2014-08-23', 'day') in (
-    CASE
-      WHEN CAST(c.monday AS INTEGER) = 1 THEN 'monday'ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.tuesday AS INTEGER) = 1 THEN 'tuesday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.wednesday AS INTEGER) = 1 THEN 'wednesday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.thursday AS INTEGER) = 1 THEN 'thursday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.friday AS INTEGER) = 1 THEN 'friday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.saturday AS INTEGER) = 1 THEN 'saturday' ELSE ''
-    END,
-    CASE
-      WHEN CAST(c.sunday AS INTEGER) = 1 THEN 'sunday' ELSE ''
-    END
+  AND
+  (
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 1 AND CAST(c.monday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 2 AND CAST(c.tuesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 3 AND CAST(c.wednesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 4 AND CAST(c.thursday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 5 AND CAST(c.friday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 6 AND CAST(c.saturday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 0 AND CAST(c.sunday AS INTEGER) = 1)
   )
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 FULL QUERY:
-
 SELECT
-  DISTINCT ON (
-destination_city,
-destination_province_code,
-destination_zone_id,
-destination_sid,
-destination_description,
-destination_arrival_time,
-destination_departure_time,
-destination_stop_sequence,
-destination_aid,
-destination_agency_name,
-destination_agency_url,
-destination.agency_fare_url,
-destination.agency_info,
-destination.agency_phone,
-destination.agency_email,
-destination.route_long_name,
-destination.rid,
-destination_day,
-date,
-destination_offset
-)
-
   destination.*,
   departure.* ,
   COALESCE(fa.price, fa2.price) AS price,
@@ -263,63 +213,120 @@ FROM (
 ) AS destination
   JOIN (
     SELECT
-      s.stop_name AS departure_city,
-      p.code AS departure_province_code,
-      s.zone_id AS departure_zone_id,
-      s.sid AS departure_sid,
-      s.stop_desc AS departure_description,
-      st.departure_time AS departure_departure_time,
-      st.arrival_time AS departure_arrival_time,
-      st.stop_sequence AS departure_stop_sequence,
-      a.agency_name AS departure_agency_name,
-      a.agency_url AS departure_agency_url,
-      r.route_long_name,
-      r.rid,
-      to_char(TIMESTAMP :date, 'day') AS departure_day,
-      tt.transportation_type_name AS transportation_type,
-      CASE
-        WHEN CAST(s.wheelchair_boarding AS INTEGER) = 1 THEN 'Wheelchair access'
-        ELSE ''
-      END AS wheelchair_access,
-      tz.hour_offset AS departure_offset
-    FROM
-      stops s
-        JOIN provinces p ON p.province_id = s.province_id
-        JOIN stop_times st ON st.sid = s.sid
-        JOIN trips t ON t.tid = st.tid
-        JOIN calendar c ON c.service_id = t.service_id
-        JOIN routes r ON r.rid = t.rid
-        JOIN agencies a ON a.aid = r.aid
-        JOIN transportation_types tt ON tt.transportation_type_id = r.transportation_type_id
-        JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
-    WHERE
-      s.stop_name = :o
-      AND p.code = :opc
-      AND :epoc between c.start_date AND c.end_date
-      AND to_char(TIMESTAMP :date, 'day') in (
-        CASE
-          WHEN CAST(c.monday AS INTEGER) = 1 THEN 'monday'ELSE ''
-        END,
-        CASE
-          WHEN CAST(c.tuesday AS INTEGER) = 1 THEN 'tuesday' ELSE ''
-        END,
-        CASE
-          WHEN CAST(c.wednesday AS INTEGER) = 1 THEN 'wednesday' ELSE ''
-        END,
-        CASE
-          WHEN CAST(c.thursday AS INTEGER) = 1 THEN 'thursday' ELSE ''
-        END,
-        CASE
-          WHEN CAST(c.friday AS INTEGER) = 1 THEN 'friday' ELSE ''
-        END,
-        CASE
-          WHEN CAST(c.saturday AS INTEGER) = 1 THEN 'saturday' ELSE ''
-        END,
-        CASE
-          WHEN CAST(c.sunday AS INTEGER) = 1 THEN 'sunday' ELSE ''
-        END
-      )
+  s.stop_name AS departure_city,
+  p.code AS departure_province_code,
+  s.zone_id AS departure_zone_id,
+  s.sid AS departure_sid,
+  s.stop_desc AS departure_description,
+  st.departure_time AS departure_departure_time,
+  st.arrival_time AS departure_arrival_time,
+  st.stop_sequence AS departure_stop_sequence,
+  a.agency_name AS departure_agency_name,
+  a.agency_url AS departure_agency_url,
+  r.route_long_name,
+  r.rid,
+  to_char(TIMESTAMP :date, 'day') AS departure_day,
+  tt.transportation_type_name AS transportation_type,
+  CASE
+    WHEN CAST(s.wheelchair_boarding AS INTEGER) = 1 THEN 'Wheelchair access'
+    ELSE ''
+  END AS wheelchair_access,
+  tz.hour_offset AS departure_offset
+FROM
+  stops s
+    JOIN provinces p ON p.province_id = s.province_id
+    JOIN stop_times st ON st.sid = s.sid
+    JOIN trips t ON t.tid = st.tid
+    JOIN calendar c ON c.service_id = t.service_id
+    JOIN routes r ON r.rid = t.rid
+    JOIN agencies a ON a.aid = r.aid
+    JOIN transportation_types tt ON tt.transportation_type_id = r.transportation_type_id
+    JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+WHERE
+  s.stop_name = :o
+  AND p.code = :opc
+  AND :epoc between c.start_date AND c.end_date
+  AND
+   (
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 1 AND CAST(c.monday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 2 AND CAST(c.tuesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 3 AND CAST(c.wednesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 4 AND CAST(c.thursday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 5 AND CAST(c.friday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 6 AND CAST(c.saturday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 0 AND CAST(c.sunday AS INTEGER) = 1)
+  )
   ) AS departure ON departure.rid = destination.rid
+      LEFT JOIN fare_rules fr ON fr.origin_id = departure.departure_zone_id
+        AND fr.destination_id = destination.destination_zone_id
+        AND departure.departure_zone_id != 0
+        AND destination.destination_zone_id != 0
+      LEFT JOIN fare_attributes fa ON fa.fare_id = fr.fare_id
+      LEFT JOIN fare_rules fr2 ON fr2.contains_id = destination.destination_zone_id
+        AND fr2.contains_id = departure.departure_zone_id
+        AND fr2.contains_id != 0
+      LEFT JOIN fare_attributes fa2 ON fa2.fare_id = fr2.fare_id
+      LEFT JOIN route_service_features rsf ON rsf.rid = destination.rid
+      LEFT JOIN service_features sf ON sf.service_feature_id = rsf.service_feature_id
+      LEFT JOIN agency_service_features asf ON asf.aid = destination.destination_aid
+      LEFT JOIN service_features sf2 ON sf2.service_feature_id = asf.service_feature_id
+      LEFT JOIN stop_service_features ssf ON ssf.sid = departure.departure_sid
+      LEFT JOIN service_features sf3 ON sf3.service_feature_id = ssf.service_feature_id
+      LEFT JOIN stop_service_features ssf2 ON ssf2.sid = destination.destination_sid
+      LEFT JOIN service_features sf4 ON sf4.service_feature_id = ssf2.service_feature_id
+GROUP BY 
+  destination.destination_aid,
+  destination.rid,
+  destination.destination_sid,
+  departure.departure_sid,
+
+destination.destination_city,
+destination.destination_province_code,
+destination.destination_zone_id,
+destination.destination_sid,
+destination.destination_description,
+destination.destination_arrival_time,
+destination.destination_departure_time,
+destination.destination_stop_sequence,
+destination.destination_aid,
+destination.destination_agency_name,
+destination.destination_agency_url,
+a.agency_fare_url,
+a.agency_info,
+    a.agency_phone,
+    a.agency_email,
+    r.route_long_name,
+    r.rid,
+    destination.destination_day,
+    destination.date,
+    destination.destination_offset,
+
+  departure.departure_city,
+  departure.departure_province_code,
+  departure.departure_zone_id,
+  departure.departure_description,
+  departure.departure_departure_time,
+  departure.departure_arrival_time,
+  departure.departure_stop_sequence,
+  departure.departure_agency_name,
+  departure.departure_agency_url,
+  r.route_long_name,
+  r.rid,
+  departure.departure_day,
+  departure.transportation_type,
+  departure.wheelchair_access,
+  departure.departure_offset
+
+
+HAVING
+  destination.destination_stop_sequence > departure.departure_stop_sequence
+ORDER BY
+  destination.destination_aid,
+  destination.rid,
+  destination.destination_sid,
+  departure.departure_sid,
+  departure_departure_time ASC,
+  destination_arrival_time ASC";
       LEFT JOIN fare_rules fr ON fr.origin_id = departure.departure_zone_id
         AND fr.destination_id = destination.destination_zone_id
         AND departure.departure_zone_id != 0
