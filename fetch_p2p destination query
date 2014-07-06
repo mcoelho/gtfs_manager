@@ -1,0 +1,72 @@
+destination query:
+SELECT
+    s.stop_name AS destination_city,
+    p.code AS destination_province_code,
+    s.zone_id AS destination_zone_id,
+    s.sid AS destination_sid,
+    s.stop_desc AS destination_description,
+    st.arrival_time AS destination_arrival_time,
+    st.departure_time AS destination_departure_time,
+    st.stop_sequence AS destination_stop_sequence,
+    a.aid AS destination_aid,
+    a.agency_name AS destination_agency_name,
+    a.agency_url AS destination_agency_url,
+    a.agency_fare_url,
+    a.agency_info,
+    a.agency_phone,
+    a.agency_email,
+    r.route_long_name,
+    r.rid,
+    to_char(TIMESTAMP :date, 'day') AS destination_day,
+    :epoc AS date,
+    tz.hour_offset AS destination_offset
+  FROM
+    stops s
+      JOIN provinces p ON p.province_id = s.province_id
+      JOIN stop_times st ON st.sid = s.sid
+      JOIN trips t ON t.tid = st.tid
+      JOIN calendar c ON c.service_id = t.service_id
+      JOIN routes r ON r.rid = t.rid
+      JOIN agencies a ON a.aid = r.aid
+      JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+    WHERE
+      s.stop_name = :d
+      AND p.code = :dpc
+      AND :epoc BETWEEN c.start_date AND c.end_date
+
+destination test - WORKS:
+SELECT
+    s.stop_name AS destination_city,
+    p.code AS destination_province_code,
+    s.zone_id AS destination_zone_id,
+    s.sid AS destination_sid,
+    s.stop_desc AS destination_description,
+    st.arrival_time AS destination_arrival_time,
+    st.departure_time AS destination_departure_time,
+    st.stop_sequence AS destination_stop_sequence,
+    a.aid AS destination_aid,
+    a.agency_name AS destination_agency_name,
+    a.agency_url AS destination_agency_url,
+    a.agency_fare_url,
+    a.agency_info,
+    a.agency_phone,
+    a.agency_email,
+    r.route_long_name,
+    r.rid,
+    to_char(TIMESTAMP '2014-08-23', 'day') AS destination_day,
+    1408762800 AS date,
+    tz.hour_offset AS destination_offset
+  FROM
+    stops s
+      JOIN provinces p ON p.province_id = s.province_id
+      JOIN stop_times st ON st.sid = s.sid
+      JOIN trips t ON t.tid = st.tid
+      JOIN calendar c ON c.service_id = t.service_id
+      JOIN routes r ON r.rid = t.rid
+      JOIN agencies a ON a.aid = r.aid
+      JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+    WHERE
+      s.stop_name = 'Halifax Airport'
+      AND p.code = 'NS'
+      AND 1408762800 BETWEEN c.start_date AND c.end_date
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -1,0 +1,94 @@
+departure query:
+
+SELECT
+  s.stop_name AS departure_city,
+  p.code AS departure_province_code,
+  s.zone_id AS departure_zone_id,
+  s.sid AS departure_sid,
+  s.stop_desc AS departure_description,
+  st.departure_time AS departure_departure_time,
+  st.arrival_time AS departure_arrival_time,
+  st.stop_sequence AS departure_stop_sequence,
+  a.agency_name AS departure_agency_name,
+  a.agency_url AS departure_agency_url,
+  r.route_long_name,
+  r.rid,
+  to_char(TIMESTAMP :date, 'day') AS departure_day,
+  tt.transportation_type_name AS transportation_type,
+  CASE
+    WHEN CAST(s.wheelchair_boarding AS INTEGER) = 1 THEN 'Wheelchair access'
+    ELSE ''
+  END AS wheelchair_access,
+  tz.hour_offset AS departure_offset
+FROM
+  stops s
+    JOIN provinces p ON p.province_id = s.province_id
+    JOIN stop_times st ON st.sid = s.sid
+    JOIN trips t ON t.tid = st.tid
+    JOIN calendar c ON c.service_id = t.service_id
+    JOIN routes r ON r.rid = t.rid
+    JOIN agencies a ON a.aid = r.aid
+    JOIN transportation_types tt ON tt.transportation_type_id = r.transportation_type_id
+    JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+WHERE
+  s.stop_name = :o
+  AND p.code = :opc
+  AND :epoc between c.start_date AND c.end_date
+  AND
+   (
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 1 AND CAST(c.monday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 2 AND CAST(c.tuesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 3 AND CAST(c.wednesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 4 AND CAST(c.thursday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 5 AND CAST(c.friday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 6 AND CAST(c.saturday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP :date)) = 0 AND CAST(c.sunday AS INTEGER) = 1)
+  )
+
+departure test - works:
+
+SELECT
+  s.stop_name AS departure_city,
+  p.code AS departure_province_code,
+  s.zone_id AS departure_zone_id,
+  s.sid AS departure_sid,
+  s.stop_desc AS departure_description,
+  st.departure_time AS departure_departure_time,
+  st.arrival_time AS departure_arrival_time,
+  st.stop_sequence AS departure_stop_sequence,
+  a.agency_name AS departure_agency_name,
+  a.agency_url AS departure_agency_url,
+  r.route_long_name,
+  r.rid,
+  to_char(TIMESTAMP '2014-08-23', 'day') AS departure_day,
+  tt.transportation_type_name AS transportation_type,
+  CASE
+    WHEN CAST(s.wheelchair_boarding AS INTEGER) = 1 THEN 'Wheelchair access'
+    ELSE ''
+  END AS wheelchair_access,
+  tz.hour_offset AS departure_offset
+FROM
+  stops s
+    JOIN provinces p ON p.province_id = s.province_id
+    JOIN stop_times st ON st.sid = s.sid
+    JOIN trips t ON t.tid = st.tid
+    JOIN calendar c ON c.service_id = t.service_id
+    JOIN routes r ON r.rid = t.rid
+    JOIN agencies a ON a.aid = r.aid
+    JOIN transportation_types tt ON tt.transportation_type_id = r.transportation_type_id
+    JOIN time_zones tz ON tz.time_zone_id = s.time_zone_id
+WHERE
+  s.stop_name = 'Halifax'
+  AND p.code = 'NS'
+  AND 1408762800 between c.start_date AND c.end_date
+  AND
+  (
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 1 AND CAST(c.monday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 2 AND CAST(c.tuesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 3 AND CAST(c.wednesday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 4 AND CAST(c.thursday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 5 AND CAST(c.friday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 6 AND CAST(c.saturday AS INTEGER) = 1) OR
+    ((SELECT extract(DOW FROM TIMESTAMP '2014-08-23')) = 0 AND CAST(c.sunday AS INTEGER) = 1)
+  )
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -1,0 +1,164 @@
+
+    //OLD QUERY
+    
+    /*$query =<<<SQL
+  select destination.*
+  ,  departure.*
+  ,  ifnull(fa.price, fa2.price) as price
+  ,  group_concat(distinct concat(sf.service_feature_name, '-', sf.service_feature_icon_url) separator ',') as route_service_features
+  ,  group_concat(distinct concat(sf2.service_feature_name, '-', sf2.service_feature_icon_url) separator ',') as agency_service_features
+  ,  group_concat(distinct concat(sf3.service_feature_name, '-', sf3.service_feature_icon_url) separator ',') as from_stop_service_features
+  ,  group_concat(distinct concat(sf3.service_feature_name, '-', sf4.service_feature_icon_url) separator ',') as to_stop_service_features
+from
+    (
+select s.stop_name as destination_city
+,  p.code as destination_province_code
+,  s.zone_id as destination_zone_id
+,  s.sid as destination_sid
+,  s.stop_desc as destination_description
+,  st.arrival_time as destination_arrival_time
+,  st.departure_time as destination_departure_time
+,  st.stop_sequence as destination_stop_sequence
+,  a.aid as destination_aid
+,  a.agency_name as destination_agency_name
+,  a.agency_url as destination_agency_url
+,  a.agency_fare_url
+,  a.agency_info
+,  a.agency_phone
+,  a.agency_email
+,  r.route_long_name
+,  r.rid
+,  dayname(:date) as destination_day
+,  :epoc as date
+,  tz.hour_offset as destination_offset
+from
+ stops s
+join provinces p
+  on p.province_id = s.province_id
+join stop_times st
+  on st.sid = s.sid
+join trips t
+  on t.tid = st.tid
+join calendar c
+  on c.service_id = t.service_id
+join routes r
+  on r.rid = t.rid
+join agencies a
+  on a.aid = r.aid
+join time_zones tz
+  on tz.time_zone_id = s.time_zone_id
+where s.stop_name = :d
+and p.code = :dpc
+and :epoc between c.start_date and c.end_date
+#and dayname(:date) in (if(c.monday = 1, 'monday', ''), if(c.tuesday = 1, 'tuesday', ''), if(c.wednesday = 1, 'wednesday', ''), if(c.thursday = 1, 'thursday', ''), if(c.friday = 1, 'friday', ''), if(c.saturday = 1, 'saturday', ''), if(c.sunday = 1, 'sunday', ''))
+) as destination
+join
+    (
+select s.stop_name as departure_city
+,  p.code as departure_province_code
+,  s.zone_id as departure_zone_id
+,  s.sid as departure_sid
+,  s.stop_desc as departure_description
+,  st.departure_time as departure_departure_time
+,  st.arrival_time as departure_arrival_time
+,  st.stop_sequence as departure_stop_sequence
+,  a.agency_name as departure_agency_name
+,  a.agency_url as departure_agency_url
+,  r.route_long_name
+,  r.rid
+,  dayname(:date) as departure_day
+,  tt.transportation_type_name as transportation_type
+,  if(s.wheelchair_boarding = 1, 'Wheelchair access', '') as wheelchair_access
+,  tz.hour_offset as departure_offset
+from
+ stops s
+join provinces p
+  on p.province_id = s.province_id
+join stop_times st
+  on st.sid = s.sid
+join trips t
+  on t.tid = st.tid
+join calendar c
+  on c.service_id = t.service_id
+join routes r
+  on r.rid = t.rid
+join agencies a
+  on a.aid = r.aid
+join transportation_types tt
+  on tt.transportation_type_id = r.transportation_type_id
+join time_zones tz
+  on tz.time_zone_id = s.time_zone_id
+where s.stop_name = :o
+and p.code = :opc
+and :epoc between c.start_date and c.end_date
+and dayname(:date) in (if(c.monday = 1, 'monday', ''), if(c.tuesday = 1, 'tuesday', ''), if(c.wednesday = 1, 'wednesday', ''), if(c.thursday = 1, 'thursday', ''), if(c.friday = 1, 'friday', ''), if(c.saturday = 1, 'saturday', ''), if(c.sunday = 1, 'sunday', ''))
+) as departure
+on departure.rid = destination.rid
+left join fare_rules fr
+  on fr.origin_id = departure.departure_zone_id
+  and fr.destination_id = destination.destination_zone_id
+  and departure.departure_zone_id != 0
+  and destination.destination_zone_id != 0
+left join fare_attributes fa
+  on fa.fare_id = fr.fare_id
+left join fare_rules fr2
+  on fr2.contains_id = destination.destination_zone_id
+  and fr2.contains_id = departure.departure_zone_id
+  and fr2.contains_id != 0
+left join fare_attributes fa2
+  on fa2.fare_id = fr2.fare_id
+left join route_service_features rsf
+  on rsf.rid = destination.rid
+left join service_features sf
+  on sf.service_feature_id = rsf.service_feature_id
+left join agency_service_features asf
+  on asf.aid = destination.destination_aid
+left join service_features sf2
+  on sf2.service_feature_id = asf.service_feature_id
+left join stop_service_features ssf
+  on ssf.sid = departure.departure_sid
+left join service_features sf3
+  on sf3.service_feature_id = ssf.service_feature_id
+left join stop_service_features ssf2
+  on ssf2.sid = destination.destination_sid
+left join service_features sf4
+  on sf4.service_feature_id = ssf2.service_feature_id
+group by destination.destination_aid, destination.rid, destination.destination_sid, departure.departure_sid
+having destination.destination_stop_sequence > departure.departure_stop_sequence
+  order by time(departure_departure_time) asc, time(destination_arrival_time) asc
+SQL;
+*/
+
+    //unknown old code
+
+    /*$dayname = $args['dayname'];
+  
+    $query = db_select('routes', 'routes');
+    $query->join('trips', 'ot', 'routes.rid=ot.rid');
+    $query->join('stop_times', 'ost', 'ot.tid=ost.tid');
+    $query->join('stops', 'os', 'ost.sid=os.sid');
+    $query->join('provinces', 'op', 'os.province_id=op.province_id');
+    $query->join('routes', 'b', 'routes.rid=b.rid');
+    $query->join('trips', 'dt', 'routes.rid=ot.rid');
+    $query->join('stop_times', 'dst', 'ot.tid=ost.tid');
+    $query->join('stops', 'ds', 'ost.sid=os.sid');
+    $query->join('provinces', 'dp', 'os.province_id=op.province_id');
+    $query->join('calendar', 'cal', 'ot.service_id=cal.service_id');
+    $query->join('agencies', 'agencies', 'routes.aid=agencies.aid');
+    $query->join('transportation_types', 'tt', 'routes.transportation_type_id=tt.transportation_type_id');
+    $query->fields('routes', array('rid'))
+      ->fields('ost', array('departure_time'))
+      ->fields('dst', array('arrival_time'))
+      ->fields('os', array('stop_name', 'stop_desc'))
+      ->fields('ds', array('stop_name', 'stop_desc'))
+      ->fields('tt', array('transportation_type_name'))
+      ->fields('agencies', array('agency_name', 'agency_url', 'agency_phone'))
+      ->condition('op.code', $args['opc'])
+      ->condition('os.stop_name', $args['o'])
+      ->condition('dp.code', $args['dpc'])
+      ->condition('ds.stop_name', $args['d'])
+      ->where("cal.$dayname = 1")
+      ->where(':epoc BETWEEN cal.start_date AND cal.end_date', array(':epoc' => $args['epoc']))
+      ->condition('dst.stop_sequence', 'ost.stop_sequence', '>');
+
+    $result = $query->execute();*/
