@@ -1,57 +1,50 @@
 <?php
+
 /**
- * Form builder for new trip, stop, and stop_time
- */
-function gtfs_manager_stop_form($form, &$form_state, $stop = null, $route = null) {
+* Form to select a stop from pre-existing set of stops
+*/
+function gtfs_manager_stop_select($form, &$form_state, $stop = null) {
 
-  //collect the route id
-  $route_id = isset($route) ? $route->rid : $stop->rid;
-
-  //Set the id ot identify this as the stop edit form
-  $form['#id'] = 'stop-form';
-
-  //save the stop for later
-  $form['#stop'] = $stop;
-  $form_state['stop'] = $stop;
-
-  //hidden field for route id
-  $form['gtfs_manager_rid'] = array(
-    '#type' => 'hidden',
-    '#value' => $route_id,
-  );
-  
-
-  
-  //Stop Section
-  
-//Select a stop from pre-existing set of stops
-
-<h2>Select a stop:</h2>
-
-//Textfields for lat and long
-
-$form['gtfs_manager_stop_select_lat'] = array(
-  '#type' => 'textfield',
-    '#title' => t('Latitude for this stop location'),
-    '#description' => t('Latitude for this stop.  Up to 8 points of precision.'),
-    '#size' => 24,
-    '#default_value' => $stop->stop_lat,
-  );
-
-  $form['gtfs_manager_stop_select_long'] = array(
+  //Textfields for lat and long
+  $form['gtfs_manager_stop_select_lat'] = array(
     '#type' => 'textfield',
-    '#title' => t('Longitude for this stop location'),
-    '#description' => t('Longitude for this stop. Up to 8 points of precision.'),
-    '#size' => 24,
-    '#default_value' => $stop->stop_long,
-  );
+      '#title' => t('Latitude for this stop location'),
+      '#description' => t('Latitude for this stop.  Up to 8 points of precision.'),
+      '#size' => 24,
+      '#default_value' => $stop->stop_lat,
+    );
 
-//need a function to retrieve matching stops from database and display them below in a list
+    $form['gtfs_manager_stop_select_long'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Longitude for this stop location'),
+      '#description' => t('Longitude for this stop. Up to 8 points of precision.'),
+      '#size' => 24,
+      '#default_value' => $stop->stop_long,
+    );
+
+  //need a function to retrieve matching stops from database and display them below in a list
+  $form['gtfs_manager_stop_select_dropdown'] = array(
+      '#type' => 'select',
+      '#title' => t('Select a stop'),
+      '#default_value' => $stop->stop_name,
+      '#options' => fetch_stops(),
+      '#required' => TRUE,
+    );
+
+   $form['#validate'][] = 'gtfs_manager_stop_form_validate';
+
+  //allow other fields to be added
+  field_attach_form('stop', $stop, $form, $form_state);
+
+  return $form;
+
+}
 
 
-//Add a stop section (stops not previously defined in DB)
-
-<h2>Add a new stop (NOTE: Only use this option if your stop was not found above.</h2>
+/**
+ * Form builder for new stop
+ */
+function gtfs_manager_stop_form($form, &$form_state, $stop = null) {
 
   //Textfield for stop name
   $form['gtfs_manager_stop_name'] = array(
@@ -106,7 +99,7 @@ $form['gtfs_manager_stop_select_lat'] = array(
     '#required' => TRUE,
   );
 
-  //tetfield for stop longitude
+  //textfield for stop longitude
   $form['gtfs_manager_stop_long'] = array(
     '#type' => 'textfield',
     '#title' => t('Longitude for this stop location'),
@@ -116,7 +109,138 @@ $form['gtfs_manager_stop_select_lat'] = array(
     '#required' => TRUE,
   );
 
-  //tetfield for trip distance
+  // //textfield for trip distance
+  // $form['gtfs_manager_shape_dist_traveled'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Distance from previous stop in kilometers'),
+  //   '#description' => t('Up to 3 decimals of accuracy.'),
+  //   '#size' => 24,
+  //   '#default_value' => $stop->shape_dist_traveled,
+  // );
+
+  // //timepicker for stop arrival time
+  // $form['gtfs_manager_stop_arrival_time'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Arrival Time for this stop'),
+  //   '#description' => t('The arrival time'),
+  //   '#attributes' => array('class' => array('form-time')),
+  //   '#default_value' => $stop->arrival_time,
+  //   '#size' => 20,
+  //   '#required' => TRUE,
+  // );
+
+  // //timepicker for stop arrival time
+  // $form['gtfs_manager_stop_departure_time'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Departure Time for this stop'),
+  //   '#description' => t('The departure time'),
+  //   '#attributes' => array('class' => array('form-time')),
+  //   '#size' =>20,
+  //   '#default_value' => $stop->departure_time,
+  //   '#required' => TRUE,
+  // );
+
+  // //textfield for stop sequence number
+  // $form['gtfs_manager_stop_sequence'] = array(
+  //   '#type' => 'select',
+  //   '#title' => t('Sequence'),
+  //   '#options' => fetch_sequence_select($route_id),
+  //   '#default_value' => ($stop->stop_sequence - 1),
+  //   '#required' => TRUE,
+  // );
+
+  // //start date popup
+  // $form['gtfs_manager_schedule_start_date'] = array(
+  //   '#type' => 'date_popup',
+  //   '#date_format' => 'd-m-Y',
+  //   '#default_value' => date('Y-m-d H:i:s', $stop->start_date),
+  //   '#date_year_range' => '0:+2',
+  //   '#date_label_position' => 'invisible',
+  //   '#title' => t('Schedule start date'),
+  //   '#required' => TRUE,
+  // );
+
+  // //end date popup
+  // $form['gtfs_manager_schedule_end_date'] = array(
+  //   '#type' => 'date_popup',
+  //   '#date_format' => 'd-m-Y',
+  //   '#default_value' => date('Y-m-d H:i:s', $stop->end_date),
+  //   '#date_year_range' => '0:+2',
+  //   '#date_label_position' => 'invisible',
+  //   '#title' => t('Schedule end date'),
+  //   '#required' => TRUE,
+  // );
+
+
+  // //checkboxes for days of the week
+  // $form['gtfs_manager_schedule_days'] = array(
+  //   '#type' => 'checkboxes',
+  //   '#options' => drupal_map_assoc(array(
+		// 	t('Monday'),
+		// 	t('Tuesday'),
+		// 	t('Wednesday'),
+		// 	t('Thursday'),
+		// 	t('Friday'),
+		// 	t('Saturday'),
+		// 	t('Sunday')
+		// 			 )),
+  //   '#default_value' => $stop->days,
+  //   '#title' => t('Which days will this route run?'),
+  // );
+
+
+  // //Add buttons
+  // $form['buttons'] = array();
+  // $form['buttons']['#weight'] = 100;
+  // $form['submit'] = array(
+  //   '#type' => 'submit',
+  //   '#value' => t('Save stop'),
+  //   '#weight' => 5,
+  //   '#submit' => array('gtfs_manager_stop_form_submit'),
+  // );
+
+  // // display delete button in edit form
+  // if (!empty($stop->sid)) {
+  //   $form['buttons']['delete'] = array(
+  //     '#type' => 'submit',
+  //     '#value' => t('Delete'),
+  //     '#weight' => 15,
+  //     '#submit' => array('gtfs_manager_stop_form_delete_submit'),
+  //   );
+  // }
+
+  $form['#validate'][] = 'gtfs_manager_stop_form_validate';
+
+  //allow other fields to be added
+  field_attach_form('stop', $stop, $form, $form_state);
+
+  return $form;
+}
+
+
+/*
+ * Additonal info/generic form. Always present whether the user is creating or selecting a stop.
+ */ 
+function gtfs_manager_stop_form_additional_info($form, &$form_state, $stop = null, $route = null){
+
+   //collect the route id
+  $route_id = isset($route) ? $route->rid : $stop->rid;
+
+  //Set the id ot identify this as the stop edit form
+  $form['#id'] = 'stop-form';
+
+  //save the stop for later
+  $form['#stop'] = $stop;
+  $form_state['stop'] = $stop;
+
+  //hidden field for route id
+  $form['gtfs_manager_rid'] = array(
+    '#type' => 'hidden',
+    '#value' => $route_id,
+  );
+
+
+  //textfield for trip distance
   $form['gtfs_manager_shape_dist_traveled'] = array(
     '#type' => 'textfield',
     '#title' => t('Distance from previous stop in kilometers'),
@@ -147,7 +271,7 @@ $form['gtfs_manager_stop_select_lat'] = array(
     '#required' => TRUE,
   );
 
-  //tetfield for stop sequence number
+  //textfield for stop sequence number
   $form['gtfs_manager_stop_sequence'] = array(
     '#type' => 'select',
     '#title' => t('Sequence'),
@@ -183,14 +307,14 @@ $form['gtfs_manager_stop_select_lat'] = array(
   $form['gtfs_manager_schedule_days'] = array(
     '#type' => 'checkboxes',
     '#options' => drupal_map_assoc(array(
-			t('Monday'),
-			t('Tuesday'),
-			t('Wednesday'),
-			t('Thursday'),
-			t('Friday'),
-			t('Saturday'),
-			t('Sunday')
-					 )),
+      t('Monday'),
+      t('Tuesday'),
+      t('Wednesday'),
+      t('Thursday'),
+      t('Friday'),
+      t('Saturday'),
+      t('Sunday')
+           )),
     '#default_value' => $stop->days,
     '#title' => t('Which days will this route run?'),
   );
@@ -222,6 +346,7 @@ $form['gtfs_manager_stop_select_lat'] = array(
   field_attach_form('stop', $stop, $form, $form_state);
 
   return $form;
+
 }
 
 /**
@@ -434,6 +559,16 @@ function fetch_provinces() {
   return $options;
 }
 
+//Function to fetch stops based on lat/long input.
+function fetch_stops($lat, $long) {
+  $result = db_query(
+      "SELECT s.stop_name 
+       FROM stops s 
+       WHERE stop_lat = :lat
+       OR stop_long = :long"
+  );
+}
+
 
 
 function fetch_sequence_select($rid) {
@@ -641,13 +776,13 @@ function gtfs_manager_route_stops_upload_form_submit($form, &$form_state) {
       } else {
 
         $days_of_week = array(
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
         );
 
         for ($i = 0; $i < count($data); $i++) {
