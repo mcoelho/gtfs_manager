@@ -33,21 +33,21 @@ class StopController extends DrupalDefaultEntityController {
       'start_date' => time(),
       'end_date' => time(),
       'days' => drupal_map_assoc(array(
-		      t('monday'),
-		      t('tuesday'),
-		      t('wednesday'),
-		      t('thursday'),
-		      t('friday'),
-		      t('saturday'),
-		      t('sunday')
+		      t('Monday'),
+		      t('Tuesday'),
+		      t('Wednesday'),
+		      t('Thursday'),
+		      t('Friday'),
+		      t('Saturday'),
+		      t('Sunday')
 				       )),
-      'monday' => '',
-      'tuesday' => '',
-      'wednesday' => '',
-      'thursday' => '',
-      'friday' => '',
-      'saturday' => '',
-      'sunday' => '',
+      'Monday' => '',
+      'Tuesday' => '',
+      'Wednesday' => '',
+      'Thursday' => '',
+      'Friday' => '',
+      'Saturday' => '',
+      'Sunday' => '',
     );
   }
 
