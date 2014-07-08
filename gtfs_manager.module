@@ -1777,6 +1777,14 @@ function template_preprocess_gtfs_manager_create_stop_view(&$variables) {
     $variables['links'] = array();
     
     $variables['links'][] =  l('Back to add','route/' . $variables['route']->rid . '/trip/add');
+    //Sage commenting: is the URL /trip/add or /trip/addstop
+}
+
+function template_preprocess_gtfs_manager_create_stop_view(&$variables) {
+      
+    $variables['links'] = array();
+    
+    $variables['links'][] =  l('Back','route/' . $variables['route']->rid . '/trip/addstop');
 }
 
 
