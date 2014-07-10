@@ -443,7 +443,7 @@ function gtfs_manager_route_stops_view($route) {
     $variables['stops'] = $stops;
     return theme('gtfs_manager_route_stops_view', $variables);
   } else {
-    drupal_set_message('There are not stops for this route.');
+    drupal_set_message('There are no stops for this route.');
   }
 }
 

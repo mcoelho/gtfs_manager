@@ -517,6 +517,7 @@ function gtfs_manager_menu() {
 			'file' => 'trip.pages.inc',
 	);
 
+	//Edit a trip
 	$items['trip/%trip/edit'] = array(
 			'title' => 'Edit',
 			'page callback' => 'trip_page_edit',
@@ -528,6 +529,8 @@ function gtfs_manager_menu() {
 			'file' => 'trip.pages.inc',
 	);
 
+
+	//Shows all trips for a given route.
 	$items['route/%route/trips'] = array(
 			'title callback' => 'trip_page_title',
 			'title arguments' => array(1),
@@ -543,8 +546,7 @@ function gtfs_manager_menu() {
 			'title callback' => 'create_or_select_stop',
 			'title arguments' => array(1),
 			'page callback' => 'drupal_get_form',
-			'page arguments' => array('gtfs_manager_stop_form',
-					entity_get_controller('stop')->create(), 1),
+			'page arguments' => array('gtfs_manager_stop_form', entity_get_controller('stop')->create(), 1),
 			'weight' => 1,
 			'menu_name' => 'gtfs_manager',
 			'access arguments' => array('administer gtfs'),
@@ -577,17 +579,17 @@ function gtfs_manager_menu() {
 		'file' => 'stop.pages.inc',
 	);
 
-/*
-	//Show and agencies routes
-	$items['route/%route/stops'] = array(
-			'title callback' => 'route_page_title',
+
+	//Show all stops for a given trip.
+	$items['trip/%trip/stops'] = array(
+			'title callback' => 'show_trip_stops',
 			'title arguments' => array(1),
 			'page callback' => 'gtfs_manager_route_stops_view',
 			'page arguments' => array(1),
 			'access callback' => TRUE,
 			'file' => 'stop.pages.inc',
 	);
-
+/*
 	//Upload route stops
 	$items['route/%route/upload'] = array(
 			'title' => t('Upload Stops'),
@@ -1844,10 +1846,10 @@ function template_preprocess_gtfs_manager_route_stops_view(&$variables) {
 
 	$variables['links'] = array();
 
-	$variables['links'][] =  l('Back to route','agency/' . $variables['route']->aid . '/routes');
+	$variables['links'][] =  l('Back to trips','route/' . $variables['route']->aid . '/trips');
 
 	if (user_access('administer gtfs')) {
-		$variables['links'][] = l('Add another stop', 'route/' . $variables['route']->rid . '/stop/add');
+		$variables['links'][] = l('Add another stop', 'trip/' . $variables['trip']->tid . '/stop/add');
 		$variables['links'][] = ' | ' . l('Add exception for all stops','route/' . $variables['route']->rid . '/calendar_date/add');
 	}
 }
@@ -1871,13 +1873,13 @@ function template_preprocess_gtfs_manager_zombie_report(&$variables) {
 function template_preprocess_gtfs_manager_trip_detail(&$variables) {
 	$stop = $variables['stop'];
 
-	$days = array('monday',
-			'tuesday',
-			'wednesday',
-			'thursday',
-			'friday',
-			'saturday',
-			'sunday'
+	$days = array('Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+			'Sunday'
 	);
 
 

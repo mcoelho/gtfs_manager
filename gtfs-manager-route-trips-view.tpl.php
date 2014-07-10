@@ -6,7 +6,7 @@
  */
 ?>
  <?php print implode(' | ', $variables['links']); ?>
-<h3>Route: <?php print $variables['trips'][0]->route_long_name; ?></h3>
+<h3>Trips for route: <?php print $variables['trips'][0]->route_long_name; ?></h3>
 <table class="route-trips-view">
   <thead>
     <tr>
