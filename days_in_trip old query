@@ -1,0 +1,17 @@
+select sum(if(cast(ifnull(st.arrival_time, 0) as time) > cast(st2.departure_time as time), 1,  0))
+from stop_times st
+join trips t
+ on t.tid = st.tid
+join trips t2
+  on t2.rid = t.rid
+join stop_times st2
+  on st2.tid = t2.tid
+  and st2.stop_sequence = st.stop_sequence + 1
+where t.rid = :rid
+and st2.sid in (select st.sid
+				from stop_times st
+				join trips t
+				on t.tid = st.tid
+				where stop_sequence between :depart and :dest
+				and t.rid = :rid)
+group by t.rid
