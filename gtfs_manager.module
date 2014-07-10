@@ -1723,7 +1723,7 @@ function template_preprocess_gtfs_manager_route_detail(&$variables) {
  */
 function template_preprocess_gtfs_manager_route_trips_view(&$variables) {
   foreach ($variables['trips'] as $trip) {
-    $trip->links[] = l('View', 'trip/' . $trip->tid . '/stops');
+    $trip->links[] = l('Stops', 'trip/' . $trip->tid . '/stops');
     
     if (user_access('administer gtfs')) {
       $trip->links[] = l('Edit', 'trip/' . $trip->tid . '/edit');
