@@ -4,6 +4,9 @@
  */
 ?>
 <div class="<?php print $classes; ?>">
+   <h1>Route detail</h1>
+   <!-- <h3>Transporter name:</h3> -->
+
    <p><b>Short name: </b><?php print $route->route_short_name; ?></p>
    <p><b>Long name: </b><?php print $route->route_long_name; ?></p>
    <p><b>Description: </b><?php print $route->route_desc; ?></p>

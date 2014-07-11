@@ -1694,7 +1694,7 @@ function template_preprocess_gtfs_manager_route_detail(&$variables) {
 	$variables['transportation_type'] = 'FIXME';
 
 	$variables['links'] = l('View Trips',
-			'route/' . $variables['trip']->rid . '/trips/view');
+			'route/' . $variables['route']->rid . '/trips');
 
 
 	if (user_access('administer gtfs')) {
@@ -1739,7 +1739,7 @@ function template_preprocess_gtfs_manager_route_trips_view(&$variables) {
     $variables['links'][] =  l('Back to route','agency/' . $variables['route']->aid . '/routes');
     
     if (user_access('administer gtfs')) {
-      $variables['links'][] = l('Add another trip', 'route/' . $variables['route']->rid . '/trip/add');
+      $variables['links'][] = l('Add trip', 'route/' . $variables['route']->rid . '/trip/add');
     }
   }
 }
@@ -1846,7 +1846,7 @@ function template_preprocess_gtfs_manager_route_stops_view(&$variables) {
 
 	$variables['links'] = array();
 
-	$variables['links'][] =  l('Back to trips','route/' . $variables['route']->aid . '/trips');
+	$variables['links'][] =  l('Back to trips','route/' . $variables['route']->rid . '/trips');
 
 	if (user_access('administer gtfs')) {
 		$variables['links'][] = l('Add another stop', 'trip/' . $variables['trip']->tid . '/stop/add');
@@ -1873,13 +1873,13 @@ function template_preprocess_gtfs_manager_zombie_report(&$variables) {
 function template_preprocess_gtfs_manager_trip_detail(&$variables) {
 	$stop = $variables['stop'];
 
-	$days = array('Monday',
-			'Tuesday',
-			'Wednesday',
-			'Thursday',
-			'Friday',
-			'Saturday',
-			'Sunday'
+	$days = array('monday',
+			'tuesday',
+			'wednesday',
+			'thursday',
+			'friday',
+			'saturday',
+			'sunday'
 	);
 
 

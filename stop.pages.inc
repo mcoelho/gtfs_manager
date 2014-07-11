@@ -434,16 +434,16 @@ function stop_delete_confirm_submit($form, &$form_state) {
 //  return theme('gtfs_manager_stop_detail', $variables);
 //}
 
-function gtfs_manager_route_stops_view($route) {
-  $variables['route'] = $route;
+function gtfs_manager_route_stops_view($trip) {
+  $variables['trip'] = $trip;
   //populate stops
-  $stops = stop_load_multiple(array(), array('rid', $route->rid, '='));
+  $stops = stop_load_multiple(array(), array('tid', $trip->tid, '='));
 
   if (sizeof($stops > 0)) {
     $variables['stops'] = $stops;
     return theme('gtfs_manager_route_stops_view', $variables);
   } else {
-    drupal_set_message('There are no stops for this route.');
+    drupal_set_message('There are no stops for this trip.');
   }
 }
 
@@ -677,13 +677,13 @@ function gtfs_manager_route_stops_upload_form_submit($form, &$form_state) {
       } else {
 
         $days_of_week = array(
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
+          'monday',
+          'tuesday',
+          'wednesday',
+          'thursday',
+          'friday',
+          'saturday',
+          'sunday',
         );
 
         for ($i = 0; $i < count($data); $i++) {

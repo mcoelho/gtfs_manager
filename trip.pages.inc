@@ -63,16 +63,16 @@ function gtfs_manager_trip_form($form, &$form_state, $trip = null, $route = null
   $form['gtfs_manager_schedule_days'] = array(
     '#type' => 'checkboxes',
     '#options' => drupal_map_assoc(array(
-			t('monday'),
-			t('tuesday'),
-			t('wednesday'),
-			t('thursday'),
-			t('friday'),
-			t('saturday'),
-			t('sunday')
+			t('Monday'),
+			t('Tuesday'),
+			t('Wednesday'),
+			t('Thursday'),
+			t('Friday'),
+			t('Saturday'),
+			t('Sunday')
 					 )),
     '#default_value' => $trip->days,
-    '#title' => t('Which days will this route run?'),
+    '#title' => t('Which days will this trip run?'),
   );
 
 
@@ -118,7 +118,8 @@ function gtfs_manager_trip_form_validate($form, &$form_state) {
   }
 
   //Must choose at lease one day of the week to run
-  $days = array('monday',
+  $days = array(
+    'monday',
 		'tuesday',
 		'wednesday',
 		'thursday',
