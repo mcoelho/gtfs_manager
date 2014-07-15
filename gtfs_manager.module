@@ -543,7 +543,7 @@ function gtfs_manager_menu() {
 
 	//Choose whether to select or create a stop 
 	$items['trip/$trip/stop/add'] = array(
-			'title callback' => 'create_or_select_stop',
+			'title callback' => t('Create or Select Stop'),
 			'title arguments' => array(1),
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array('gtfs_manager_stop_form', entity_get_controller('stop')->create(), 1),
@@ -555,7 +555,7 @@ function gtfs_manager_menu() {
 
 	//Select a stop for given trip from list
 	$items['trip/%trip/add/select'] = array(
-			'title callback' => 'trip_select_stop',
+			'title callback' => t('Trip Select Stop'),
 			'title arguments' => array(1),
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array('gtfs_manager_stop_select', 'gtfs_manager_stop_form_additional_info',
@@ -582,7 +582,7 @@ function gtfs_manager_menu() {
 
 	//Show all stops for a given trip.
 	$items['trip/%trip/stops'] = array(
-			'title callback' => 'show_trip_stops',
+			'title callback' => t('Show Trip'),
 			'title arguments' => array(1),
 			'page callback' => 'gtfs_manager_route_stops_view',
 			'page arguments' => array(1),
